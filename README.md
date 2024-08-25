@@ -44,7 +44,7 @@ Freiheit utilizes multimodal models in backend to recognize images or texts and 
 - **Facing obstacles in street**: To assist people while walking, the system informs them of the distance to objects ahead. This distance prediction is done in two ways:
 
   - Using information from large language multimodal models.
-  - Using a Neural Network named DistanceNN, based on the DINOV2 architecture. DistanceNN was trained with a small dataset of images showing a chair at distances from 40cm to 400cm, with 5cm intervals. The model achieved an % error of (shown in results/distanceNN/03_Evaluation_plot_with_range.jpeg)
+  - Using a Neural Network named DistanceNN, based on the DINOV2 architecture. DistanceNN was trained with a small dataset of images showing a chair at distances from 40cm to 400cm, with 5cm intervals. The model achieved an % error of (shown in results/03_Evaluation_plot_with_range.jpeg)
 
     - 4.9% in 40-100cm
     - 3.5% in 100-200cm
