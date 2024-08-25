@@ -2,29 +2,28 @@ import streamlit as st
 import PIL.Image as Image
 import warnings
 
-from src.distanceNN_utils import load_DistanceNN
-from src.llm_utils import load_llm_model
-from src.gui_utils import (
+from src.utils.distanceNN_utils import load_DistanceNN
+from src.models.llm.llm import load_llm_model
+from src.utils.gui_utils import (
     set_title,
     set_background_image,
     handle_submit_button,
     convert_text_to_speech,
     reset_inputs,
 )
-from src.gui_utils import convert_text_to_speech
-from src.data_processing_utils import (
-    preview_uploaded_image,
-    modify_prompt_with_predicted_distance,
-    reset_prompt,
-)
+from src.utils.gui_utils import convert_text_to_speech
 
-from constants import (
+
+from src.constants import (
     SAVED_MODEL_PATH,
     TASK_TYPES,
     IMAGE_INPUT_TYPE,
     TASK_SUBTYPES,
     LANGUAGE_OPTIONS,
 )
+from src.utils.image_processing_utils import preview_uploaded_image
+from src.utils.llm_utils import modify_prompt_with_predicted_distance, reset_prompt
+
 
 warnings.filterwarnings("ignore")  # Ignore warnings
 

@@ -1,18 +1,18 @@
 import streamlit as st
 import warnings
 
-from src.llm_utils import load_llm_model
-from src.gui_utils import (
-    set_title,
+from src.models.llm.llm import load_llm_model
+from src.utils.gui_utils import (
     set_background_image,
     handle_submit_button,
     convert_text_to_speech,
     reset_inputs,
+    set_title,
 )
-from src.gui_utils import convert_text_to_speech
-from src.data_processing_utils import preview_uploaded_image
+from src.utils.gui_utils import convert_text_to_speech
+from src.utils.image_processing_utils import preview_uploaded_image
 
-from constants import (
+from src.constants import (
     TASK_TYPES,
     IMAGE_INPUT_TYPE,
     TASK_SUBTYPES_LLM,

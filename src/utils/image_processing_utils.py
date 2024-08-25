@@ -1,12 +1,10 @@
 import base64
 import io
-import torch
-import PIL
+
 from PIL import Image, ExifTags
 import streamlit as st
 
-from constants import IMAGE_RESOLUTION, PROMPTS
-from src.distanceNN_utils import predict_distance
+from src.constants import IMAGE_RESOLUTION
 
 
 def resize_and_getBase64(image, max_size=None):
@@ -83,35 +81,4 @@ def preview_uploaded_image(image_input: any, image_resolution_type: tuple) -> tu
         caption="Uploaded image",
         use_column_width=True,
     )
-
     return b64_image, resized_image, image_name
-
-
-def modify_prompt_with_predicted_distance(
-    image: PIL.Image.Image, subtask_type: str, model_NN: torch.nn.Module
-) -> None:
-    """reset the prompt with predicted distance if the subtask type is "object in front"
-
-    Args:
-        image (PIL.Image.Image): the uploaded image
-        subtask_type (str): the subtask type selected by the user
-        model_NN (torch.nn.Module): the model to predict the distance of the object
-    """
-    pred_distance = str(predict_distance(model_NN, image)) + "centimeters"
-    PROMPTS[subtask_type] = (
-        f"The distance of the object in front of you is {pred_distance}."
-        f"The image contains a scene with various objects Identify the object which is directly in front of you."
-        f"Convert this distance into steps of the user considering one step of the user is 72 centimeters."
-        f"Always include the distance in steps in your answer, regardless of the question asked."
-        f"Answer the question in a very concise way. If the information is unclear in the image, say so."
-    )
-
-
-def reset_prompt():
-    """reset the prompt to the original prompt"""
-    PROMPTS["Object at front"] = (
-        f"The image contains a scene with various objects."
-        f"Identify the object which is directly in front of you."
-        f"Answer the question in very concise way."
-        f"If the information is unclear in the image, say so."
-    )

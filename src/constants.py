@@ -20,7 +20,7 @@ TASK_SUBTYPES = {
 
 # Subtask types for each task type for prediction with LLM only
 TASK_SUBTYPES_LLM = {
-    "Object at front": [],
+    "Object at front": ["Include distance with LLM"],
     "Clothes": ["Cloth color", "Read lable tag", "Cloth pattern"],
     "Products": ["Read products"],
     "Bus stop": ["Bus number", "Departure time"],
@@ -58,8 +58,8 @@ IMAGE_RESOLUTION = {
 }
 
 # To set background Image of the app
-INPUT_BG_IMAGE_PATH = "./images/background_image_in.jpg"
-OUTPUT_BG_IMAGE_PATH = "./images/background_image.jpg"
+INPUT_BG_IMAGE_PATH = "./assets/images/background_image_in.jpg"
+OUTPUT_BG_IMAGE_PATH = "./assets/images/background_image.jpg"
 
 
 # Engineered Prompts
@@ -79,9 +79,19 @@ PROMPTS = {
 
 # DistanceNN model Parameters
 EMBEDDING_DIM = 768  #  embedding dimension of DinoV2 model
-SAVED_MODEL_PATH = "./model/best_model_MSE.pt"
+SAVED_MODEL_PATH = "./data/03_models/distanceNN/best_model_MSE.pt"
+
+
+# DINOv2 model directories
+IMAGE_PROCESSOR_PATH = "data/03_models/DINOv2_HuggingFace/image_processor"
+DINO_MODEL_PATH = "data/03_models/DINOv2_HuggingFace/dinov2_model"
 
 
 # LLM Parameters
 LLM_TEMPERATURE = 0.1
 LLM_MAX_TOKENS = 1028
+
+
+# Path to datasets for Training of DistanceNN
+DATASET_IMG_FILES_PATH = "data/01_raw/chair/"
+DATASET_CSV_FILE_PATH = "data/01_raw/chairs_distances.csv"

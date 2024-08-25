@@ -2,26 +2,16 @@ import streamlit as st
 import torch.nn as nn
 import torch
 import PIL
+
 from transformers import AutoImageProcessor, Dinov2Model
 
-from constants import EMBEDDING_DIM
-
-image_processor = AutoImageProcessor.from_pretrained("./model/image_processor")
-dino_model = Dinov2Model.from_pretrained("./model/dinov2_model")
+from src.models.distanceNN.distanceNN import DistanceNN
+from src.constants import DINO_MODEL_PATH, EMBEDDING_DIM, IMAGE_PROCESSOR_PATH
 
 
-class DistanceNN(nn.Module):
-    def __init__(self, input_dim, output_dim):
-        super(DistanceNN, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.fc3 = nn.Linear(64, output_dim)
-
-    def forward(self, x):
-        x = torch.relu(self.fc1(x))
-        x = torch.relu(self.fc2(x))
-        x = self.fc3(x)
-        return x
+# Initialize the image processor and model
+image_processor = AutoImageProcessor.from_pretrained(IMAGE_PROCESSOR_PATH)
+dino_model = Dinov2Model.from_pretrained(DINO_MODEL_PATH)
 
 
 @st.cache_resource
@@ -44,13 +34,20 @@ def get_image_embedding_Dino(image):
     """Get embeddings of the image from DinoV2 model
 
     Args:
-        image (PIL.Image.Image): Input image file
+        image (str, PIL.Image.Image): The image file path or a PIL image
 
     Returns:
         return embedding_DINO: The embedding of image from DinoV2 model
     """
     # Preprocess a single image
-    image = image.convert("RGB")
+
+    if isinstance(image, PIL.Image.Image):
+        image = image.convert("RGB")
+    elif isinstance(image, str):
+        image = PIL.Image.open(image).convert("RGB")
+    else:
+        raise ValueError("The image must be a file path, or  a PIL image")
+
     inputs = image_processor(images=image, return_tensors="pt")
     pixel_values = inputs["pixel_values"]
     # get embeddings for a single image

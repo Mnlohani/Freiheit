@@ -4,7 +4,7 @@ Freiheit (English: 'Freedom') is an initiative designed to assist blind and visu
 
 Freiheit utilizes multimodal models in backend to recognize images or texts and also predicts the distance of the object in front using either a multimodal model or a trained Neural Network. The inferences for each use case are refined through prompt engineering, using datasets specifically created for these applications. Currently, Freiheit employs Omni (ChatGPT-4-o) or LLaVA to generate inferences. Its underlying architecture, Langchain, enables compatibility with various models, including other Llama3 models.
 
-![The general Architecure](images/GUI.png)
+![The general Architecure](assets/images/GUI.png)
 
 **Check out the
 [demo video](https://drive.google.com/file/d/1Iw-QR9VFFOFwLM01055UUcrS1YekQRMc/view?usp=sharing)**
@@ -42,11 +42,21 @@ Freiheit utilizes multimodal models in backend to recognize images or texts and 
   - Reading product expiry date
 
 - **Facing obstacles in street**: To assist people while walking, the system informs them of the distance to objects ahead. This distance prediction is done in two ways:
-  - Using information from large language multimodal models.
-  - Using a Neural Network named DistanceNN, based on the DINOV2 architecture. DistanceNN was trained with a small dataset of images showing a chair at distances from 40cm to 400cm, with 5cm intervals. The model achieved an average error of 6.7cm on the test set within this range. While the model performed well in testing, it needs improvement for everyday use by training on a larger dataset.
-    Because of this, there are two separate files for running the app in the two ways mentioned (explained in the "How to Use" section). **Currently, users are encouraged to use the first method (inferences from the large language model only)**.
 
-**The user gets response both in text and audio in the desired language.**
+  - Using information from large language multimodal models.
+  - Using a Neural Network named DistanceNN, based on the DINOV2 architecture. DistanceNN was trained with a small dataset of images showing a chair at distances from 40cm to 400cm, with 5cm intervals. The model achieved an % error of (shown in results/distanceNN/03_Evaluation_plot_with_range.jpeg)
+
+    - 4.9% in 40-100cm
+    - 3.5% in 100-200cm
+    - 5.9% in 200-300cm
+    - 3.0% in 300-400cm
+
+    While the model performed well in testing, it needs improvement for everyday use by training on a larger dataset.
+    Because of this, there are two separate files for running the app in the two ways mentioned (explained in the "How to Use" section).
+
+  **Currently, users are encouraged to use the first method (inferences from the large language model only with llm_app.py)**.
+
+- The user gets response both in text and audio in the desired language.
 
 ## How to use it
 
@@ -88,26 +98,43 @@ ollama pull llama3
 1. From LLM model only (**Currently, users are encouraged to use this**)
 
 ```bash
-streamlit run main_llm.py
+streamlit run llm_app.py
 ```
 
 2. From both the DistanceNN and LLM models
 
 ```bash
-streamlit run main_llm.py
+streamlit run llm_with_nn_app.py
 ```
 
 For the second option, user needs to download the DINOV2model pretrained weight tensors (model.safetensors) from [HuggingFace dino-base](https://huggingface.co/facebook/dinov2-base/tree/main) in following directory as below.  
-model/dinov2_model/model.safetensors
+data/03_models/DINOv2_HuggingFace/dinov2_model/model.safetensors
 
 # The underlying Architecure
 
-## ![The general Architecure](images/architecture_1.png)
+## The general Architecure
 
-- In case of object detection in front with distance prediction.
-  ![Architecture for object detection with DistanceNN](images/architecture_2.png)
+**llm_app.py** includes the following architecure.
 
-![DistanceNN](images/DistanceNN.png)
+## ![The general Architecure](assets/images/architecture_1.png)
+
+**llm_with_nn_app.py** uses above underlying for all use cases except one for prediction of distance of object at front which uses distanceNN. Distance prediction has following architecture.
+![Architecture for object detection with DistanceNN](assets/images/architecture_2.png)
+
+#### DistanceNN architecure:
+
+![DistanceNN](assets/images/DistanceNN.png)
+
+#### Running the DistanceNN Pipeline
+
+To execute the DistanceNN pipeline, use the following command:
+
+```python
+python -m src.models.distanceNN.run_distanceNN_pipeline
+```
+
+**Viewing the Results:**  
+Logs will be generated in the logs directory for your review. Additionally, logs will be displayed in the console during execution for real-time monitoring.
 
 ## Improvement to be done:
 

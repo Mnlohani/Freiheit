@@ -6,7 +6,7 @@ from langchain_openai import ChatOpenAI
 from langchain_community.llms import Ollama
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from constants import LLM_MAX_TOKENS, LLM_TEMPERATURE, PROMPTS
+from src.constants import LLM_MAX_TOKENS, LLM_TEMPERATURE, PROMPTS
 
 
 def load_llm_model(model: str) -> object:
@@ -102,53 +102,3 @@ def get_response(
     )
     ai_msg = model.invoke(message_to_model)
     return ai_msg.content
-
-
-def save_responses_to_csv(
-    image_name: str,
-    temperature: float,
-    image_size: tuple,
-    system_prompt: str,
-    user_prompt: str,
-    response: str,
-) -> None:
-    """save responses to a csv file for analysis
-
-    Args:
-        image_name (str): Name of the image
-        temperature (float): Temperature of the llm model
-        image_size (tuple): Image size resulution inserted into the model
-        system_prompt (str): The engineered prompt to the llm model
-        user_prompt (str): User question to the llm model
-        response (str): Response from the llm model
-
-    Returns: None
-    """
-    # If the file does not exist, create a new file
-    if not os.path.exists("responses.csv"):
-        df_responses = pd.DataFrame(
-            columns=[
-                "Image Name",
-                "Temperature",
-                "Image Size",
-                "System Prompt",
-                "User Prompt",
-                "Response",
-            ]
-        )
-        df_responses.to_csv("responses.csv", index=False)
-    pd.read_csv("responses.csv")
-    df_new_response = pd.DataFrame(
-        [
-            {
-                "Image Name": image_name,
-                "Temperature": temperature,
-                "Image Size": image_size,
-                "System Prompt": system_prompt,
-                "User Prompt": user_prompt,
-                "Response": response,
-            }
-        ]
-    )
-    df_responses = pd.concat([df_responses, df_new_response], ignore_index=True)
-    df_responses.to_csv("responses.csv")

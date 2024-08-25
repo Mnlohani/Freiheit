@@ -4,13 +4,13 @@ from PIL import Image
 from io import BytesIO
 from gtts import gTTS
 
-from src.llm_utils import get_response
 
-from constants import (
+from src.constants import (
     INPUT_BG_IMAGE_PATH,
     LANGUAGE_OPTIONS,
     OUTPUT_BG_IMAGE_PATH,
 )
+from src.models.llm.llm import get_response
 
 
 def set_background(file_path: str) -> None:
@@ -162,3 +162,14 @@ def convert_text_to_speech(response: str, language_code: str) -> None:
     tts.write_to_fp(audio_bytes)
     st.audio(audio_bytes.getvalue(), format="audio/mp3")
     st.text(f"Response:{response}")
+
+
+def save_mp3_for_options(text, sel):
+    """Converts text to speech and saves it as an mp3 file
+
+    Args:
+        text (str): The text to be converted to speech
+    """
+    tts = gTTS(text=text, lang="en")
+    filename = "task.mp3"
+    tts.save(filename)
