@@ -18,7 +18,6 @@ env/
 data/01_raw/*
 
 # But don't ignore the directory and the .gitkeep file
-!data/01_raw/
 !data/01_raw/.gitkeep
 
 # vscode
