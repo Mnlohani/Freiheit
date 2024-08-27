@@ -14,11 +14,10 @@ env/
 # PyCharm
 .idea/
 
-# Ignore everything in data/01_raw
+#data
+!data/01_raw/.gitkeep
 data/01_raw/*
 
-# But don't ignore the directory and the .gitkeep file
-!data/01_raw/.gitkeep
 
 # vscode
 .vscode/

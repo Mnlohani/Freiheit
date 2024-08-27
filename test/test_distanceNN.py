@@ -10,7 +10,7 @@ from src.constants import DATASET_CSV_FILE_PATH, DATASET_IMG_FILES_PATH
 from src.data.preprocessor import Preprocessor
 from src.models.distanceNN.distanceNN import DistanceNN
 from src.models.distanceNN.train_NN import train_NN
-from run_distanceNN_pipeline import run_distanceNN_pipeline
+from src.models.distanceNN.run_distanceNN_pipeline import run_distanceNN_pipeline
 
 
 class TestDistanceNN(unittest.TestCase):
