@@ -4,7 +4,9 @@ Freiheit (English: 'Freedom') is an initiative designed to assist blind and visu
 
 Freiheit utilizes multimodal models in backend to recognize images or texts and also predicts the distance of the object in front using either a multimodal model or a trained Neural Network. The inferences for each use case are refined through prompt engineering, using datasets specifically created for these applications. Currently, Freiheit employs Omni (ChatGPT-4-o) or LLaVA to generate inferences. Its underlying architecture, Langchain, enables compatibility with various models, including other Llama3 models.
 
-![The general Architecure](assets/images/GUI.png)
+[![Project demo video](/assets/images/demo_poster.png)](https://www.youtube.com/watch?v=JOuQfZIHabc)
+
+[![Project demo video](/assets/images/demo_poster.png)](/assets/images/demo.gif)
 
 ## Functionalities
 
