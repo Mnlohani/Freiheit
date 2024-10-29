@@ -6,9 +6,6 @@ Freiheit utilizes multimodal models in backend to recognize images or texts and 
 
 ![The general Architecure](assets/images/GUI.png)
 
-**Check out the
-[demo video](https://drive.google.com/file/d/1Iw-QR9VFFOFwLM01055UUcrS1YekQRMc/view?usp=sharing)**
-
 ## Functionalities
 
 - **Bus stops**
