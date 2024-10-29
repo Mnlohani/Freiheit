@@ -57,7 +57,10 @@ def construct_message(
         str: messages to be sent to llm model
     """
     prompt = (
-        PROMPTS[subtask_type] + "Answer in" + str(language_of_response) + "language"
+        "The user wants the answer in"
+        + str(language_of_response)
+        + "language"
+        + PROMPTS[subtask_type]
     )
     messages = [
         SystemMessage(content=prompt),
@@ -74,6 +77,7 @@ def construct_message(
             ]
         ),
     ]
+    print(prompt)
     return messages
 
 
