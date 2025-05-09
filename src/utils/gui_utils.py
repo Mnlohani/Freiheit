@@ -7,7 +7,6 @@ from gtts import gTTS
 
 from src.constants import (
     INPUT_BG_IMAGE_PATH,
-    LANGUAGE_OPTIONS,
     OUTPUT_BG_IMAGE_PATH,
 )
 from src.models.llm.llm import get_response
@@ -141,7 +140,6 @@ def handle_submit_button(
     elif not user_prompt:
         st.warning("Please enter a prompt or comment before submitting")
     else:
-        # language_code = LANGUAGE_OPTIONS[language_of_response]
         response = get_response(
             llm, b64_image, subtask_type, user_prompt, language_of_response
         )
