@@ -1,10 +1,14 @@
 # Freiheit 🦋
 
-Freiheit (English: 'Freedom') is an initiative designed to assist blind and visually impaired individuals with their daily tasks, fostering greater independence. Freiheit incorporates various use cases from daily life, which are identified by exploring different sources.
+Freiheit (English: Freedom) is an initiative designed to assist blind and visually impaired individuals with their daily tasks, fostering greater independence through the use of large language multimodal models. The main motto of this project is to provide users with full control over their privacy, and to offer the service at zero cost when used at home. The project is built on an underlying architecture using Langchain, which enables compatibility with various models, including other LLaMA 3 models. While the software was initially tested with in-house models such as the LLaVA (LLaMA 3 + vision) model, it has primarily been evaluated using Omni (ChatGPT-4-o) due to computational constraints.
 
-Freiheit utilizes multimodal models in backend to recognize images or texts and also predicts the distance of the object in front using either a multimodal model or a trained Neural Network. The inferences for each use case are refined through prompt engineering, using datasets specifically created for these applications. Currently, Freiheit employs Omni (ChatGPT-4-o) or LLaVA to generate inferences. Its underlying architecture, Langchain, enables compatibility with various models, including other Llama3 models.
+Freiheit incorporates a wide range of real-life use cases, identified through the exploration of various sources. To test the software, a comprehensive and detailed dataset (from supermarkets, medicine stores, clothings and shoe stores, bus stops, metro stations, streets etc.) was created, considering different scenarios and possibilities. These use cases were selected after thorough research involving publications, videos, and other relevant resources.
+
+Freiheit utilizes multimodal models in backend to recognize images or texts and also predicts the distance of the object in front using either a multimodal model or a trained Neural Network. The inferences for each use case are refined through prompt engineering, using datasets specifically created for these applications. Currently, Freiheit employs Omni (ChatGPT-4-o) or LLaVA to generate inferences.
 
 [![Project demo video](/assets/images/demo_poster.png)](https://www.youtube.com/watch?v=JOuQfZIHabc)
+
+**The app with a complete blind people friendly UI having screen recorder support is under development.**
 
 ## Functionalities
 
@@ -133,9 +137,10 @@ python -m src.models.distanceNN.run_distanceNN_pipeline
 **Viewing the Results:**  
 Logs will be generated in the logs directory for your review. Additionally, logs will be displayed in the console during execution for real-time monitoring.
 
-## Improvement to be done:
+## Improvements to be done:
 
-- Make it user friendly (handfree and purely voice based)
-- Further improvement for recongising table based sturcture data
+- Make it user friendly (handfree and purely voice based) : Under Development with screen reader support.
+- Recognising the tables such as neutritions tables came out to be not correct in the exploration. So further improvement for recongising table based sturcture data using RAG.
+- Comparison of results with different models.
 
 _Background image of the App by_ [giorgiotrovato](https://unsplash.com/de/@giorgiotrovato)
