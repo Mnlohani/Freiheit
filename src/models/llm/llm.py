@@ -6,7 +6,7 @@ from langchain_openai import ChatOpenAI
 from langchain_community.llms import Ollama
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from src.constants import LLM_MAX_TOKENS, LLM_TEMPERATURE, PROMPTS
+from src.constants import HAUPT_PROMPT, LLM_MAX_TOKENS, LLM_TEMPERATURE, PROMPTS
 
 
 def load_llm_model(model: str) -> object:
@@ -60,6 +60,7 @@ def construct_message(
         "The user wants the answer in"
         + str(language_of_response)
         + "language"
+        + HAUPT_PROMPT 
         + PROMPTS[subtask_type]
     )
     messages = [
