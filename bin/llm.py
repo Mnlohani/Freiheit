@@ -7,6 +7,7 @@ from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from src.constants import HAUPT_PROMPT, LLM_MAX_TOKENS, LLM_TEMPERATURE, PROMPTS
+from src.utils.voice_utils import play_audio, text_to_audio
 
 
 def load_llm_model(model: str) -> object:
@@ -84,6 +85,7 @@ def construct_message(
             ]
         ),
     ]
+    print(prompt)
     return messages
 
 
@@ -92,20 +94,63 @@ def get_response(
     b64image: str,
     user_prompt: str,
     language_of_response: str = "English",
+    language_code: str = "en",
+    speak_response: bool = True
 ):
     """Get the response from the AI model
 
     Args:
         model (object): The llm model
         b64image (str): the base64 encoded image
-        user_pronpt (str): Question asked by the user
+        prompt (str): system message to the AI model Aka Prompt
+        user_prompt (str): Question asked by the user
+        distance (int): distance of the object from the user
         language_of_response (str): Language of the response
+        speak_response (bool): Whether to speak the response aloud
 
     Returns:
-        str: Response from the AI model
+        str: Full Response from the AI model
     """
     message_to_model = construct_message(
         b64image,user_prompt, language_of_response
     )
-    ai_msg = model.invoke(message_to_model)
-    return ai_msg.content
+    
+    buffer = ""     # Accumulates chunk untill sentence is complete
+    full_response = ""    # accumulates the entire response
+
+    print("Assistant: ", end="", flush=True)
+
+    for chunk in model.stream(message_to_model):
+        text_of_chunk = chunk.content
+
+        if not text_of_chunk:
+            continue
+
+        print(text_of_chunk, end="", flush=True)
+
+        buffer += text_of_chunk
+        full_response += text_of_chunk
+
+        # when sentence is complete → speak it immediately
+        if any(punct in buffer for punct in [".", "!", "?", ","]):
+            if buffer.strip() and speak_response:
+                try:
+                    audio = text_to_audio(buffer.strip(), lang=language_code)
+                    play_audio(audio)
+                except Exception as e:
+                    print(f"\nTTS error: {e}")
+            buffer = ""     # reset buffer for next sentenc
+            
+    # speak any remaining text that didn't end with punctuation
+    # example: If LLM responds "The image shows a busy street. There is a red bus"". The  
+    #if buffer.strip() and speak_response:
+    #    try:
+    #        audio = text_to_audio(buffer.strip(), lang=language_code)
+    #        play_audio(audio)
+    #    except Exception as e:
+    #        print(f"\nTTS error: {e}")
+
+    #    print()  # new line after response
+
+    return full_response
+    

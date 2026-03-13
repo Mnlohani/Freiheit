@@ -29,7 +29,7 @@ warnings.filterwarnings("ignore")  # Ignore warnings
 
 # ------ Load model ------
 
-llm = load_llm_model(model="gpt-4o")
+llm = load_llm_model(model="gemini-2.5-flash")
 model_NN = load_DistanceNN(SAVED_MODEL_PATH)
 # predicted distance of object
 pred_distance = 0

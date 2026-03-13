@@ -1,0 +1,31 @@
+# --- Security (The most important part) ---
+.env
+.env.*
+*.pem
+*.key
+
+# --- Build & Dependency Artifacts ---
+.venv
+__pycache__
+*.pyo
+*.pyd
+.pytest_cache
+
+# --- IDE & Version Control ---
+.git
+.gitignore
+.vscode
+.ruff_cache
+.idea
+.DS_Store
+
+# --- Docker & Project specific ---
+docker-compose.yml  # You don't need this inside the images!
+README.md
+
+/bin
+/data
+/logs
+/results
+/notebooks
+
