@@ -1,16 +1,12 @@
 import base64
 import streamlit as st
 from PIL import Image
-from io import BytesIO
-from gtts import gTTS
-
 
 from src.constants import (
     INPUT_BG_IMAGE_PATH,
     OUTPUT_BG_IMAGE_PATH,
+    WIDGET_KEYS,
 )
-from src.models.llm.llm import get_response
-
 
 def set_background(file_path: str) -> None:
     """set a background image
@@ -99,75 +95,70 @@ def set_title() -> None:
     st.markdown("<br>", unsafe_allow_html=True)
 
 
-def reset_inputs(session_state: any) -> None:
-    """Reset session state of streamlit GUI
 
-    Args:
-        session_state (any): current session state
-
-    Returns: None
+def reset_inputs() -> None:
     """
-    session_state.uploaded_image = None
-    session_state.user_prompt = ""
-    # st.rerun()
+    Reset all Streamlit widgets and session state back to their defaults.
 
+    Streamlit widgets are controlled by their session state key.
+    Deleting the key forces Streamlit to re-render the widget as fresh/empty.
+    st.rerun() is called at the end to immediately reflect the reset in the UI.
 
-def handle_submit_button(
-    session_state: dict,
-    user_prompt: str,
-    llm: object,
-    b64_image: str,
-    subtask_type: str,
-    language_of_response: str,
-) -> str:
-    """Handle the submit button action and returns
-    the response from the AI model
-
-    Args:
-        session_state (dict): The session state of the streamlit app
-        user_prompt (str): The user prompt
-        llm (object): The language model
-        b64_image (str): The base64 encoded image
-        subtask_type (str): The subtask type
-        language_of_response (str): The language of the response
-
-    Returns:
-        str: The response from the AI model
+    Returns
+    -------
+    None
     """
+    for key in WIDGET_KEYS:
+        if key in st.session_state:
+            del st.session_state[key]   # deleting keys to reset the widget
+        st.session_state.upload_counter = st.session_state.get("upload_counter", 0) + 1
+        st.session_state.chat_history = []
+        st.session_state.image_context = None
+        st.session_state.text_mode = False
+    
 
-    if session_state.uploaded_image is None:
-        st.text("Please upload an image or take a picture")
-    elif not user_prompt:
-        st.warning("Please enter a prompt or comment before submitting")
-    else:
-        response = get_response(
-            llm, b64_image, subtask_type, user_prompt, language_of_response
-        )
-    return response
-
-
-def convert_text_to_speech(response: str, language_code: str) -> None:
-    """Convert the text response to speech
-
-    Args:
-        response (str): The response from the AI model
-        language_code (str): The language code of the response
-
-    return: None
+    
+def render_chat_history() -> None:
     """
-    tts = gTTS(response, lang=language_code)
-    audio_bytes = BytesIO()
-    tts.write_to_fp(audio_bytes)
-    st.audio(audio_bytes.getvalue(), format="audio/mp3")
-    st.text(f"Response:{response}")
+    Render scrollable chat history box showing all
+    questions and responses in the current session.
 
-
-def save_mp3_for_options(text, sel):
-    """Converts text to speech and saves it as an mp3 file
-
-    Args:
-        text (str): The text to be converted to speech
+    Returns
+    -------
+    None
     """
-    tts = gTTS(text=text, lang="en")
-    filename = "task.mp3"
-    tts.save(filename)
+    if not st.session_state.chat_history:
+        return
+
+    st.markdown("### Conversation")
+
+    for message in st.session_state.chat_history:
+        if message["role"] == "user":
+            st.markdown(f"""
+                <div style="
+                    background: #e8f4f8;
+                    border-radius: 12px;
+                    padding: 10px 14px;
+                    margin: 6px 0;
+                    text-align: right;
+                ">
+                    User: {message["content"]}
+                </div>
+            """, unsafe_allow_html=True)
+
+        else:
+            st.markdown(f"""
+                <div 
+                    style="
+                        background: #f0f0f0;
+                        border-radius: 12px;
+                        padding: 10px 14px;
+                        margin: 6px 0;
+                        text-align: left;
+                    "
+                    aria-live="polite"
+                    tabindex="0"
+                >
+                    AI: {message["content"]}
+                </div>
+            """, unsafe_allow_html=True)

@@ -15,10 +15,9 @@ from src.utils.gui_utils import (
 
 from src.constants import (
     API_ENDPOINT,
-    IMAGE_QUALITY_OPTIONS,
     LANGUAGE_DICT
 )
-from src.utils.voice_utils import autoplay_audio, infer_resolution_from_prompt, text_to_speech_gtts, transcribe_STT, translator
+from src.utils.voice_utils import autoplay_audio, detect_language_from_text, infer_resolution_from_prompt, text_to_speech_gtts, transcribe_STT, translator
 
 
 warnings.filterwarnings("ignore")  # Ignore warnings
@@ -36,29 +35,50 @@ url = os.getenv("BACKEND_URL") + API_ENDPOINT
 
 # ____________SESSION STATE INITIALISATION________________
 
-# Initialise session variable
-
+# Initialise local and session variable
+audio_input = None    # ← local default
+user_prompt = None 
 
 dict_init_session_var = {  
                          "uploaded_image": None, 
-                         "audio_input": None, 
                          "upload_counter": 0, 
                          "chat_history":[],
-                         "image_context": None}
+                         "image_context": None,
+                         "text_mode" : False}
 
 for key, value in dict_init_session_var.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
 st.toggle(
-    "Toggle button for automatic voice responses or via Screen Reader ",
+    "Default Screen Reader or Automatic voice responses",
     key="tts_enabled",
-    value=True,
+    value=False,
 )
 
+# Radio button selection
+input_method = st.radio(
+    "Choose how to provide image",
+    ["Upload Image", "Take Photo"],
+    horizontal=True,
+    key="input_method"
+)
+
+# Image selection
+if input_method == "Upload Image":
+    st.session_state.uploaded_image= st.file_uploader(
+        "Choose an image",
+        type=["jpg", "jpeg", "png"],
+        key=f"uploaded_image_{st.session_state.upload_counter}"
+    )
+else:
+    st.session_state.uploaded_image = st.camera_input(
+        "Take a new photo",
+        key=f"uploaded_image_{st.session_state.upload_counter}"
+    )
 
 # SelectionBox: image input
-st.session_state.uploaded_image = st.file_uploader("Choose an image", type=["jpg", "jpeg", "png"], key=f"uploaded_image_{st.session_state.upload_counter}")
+# st.session_state.uploaded_image = st.file_uploader("Choose an image", type=["jpg", "jpeg", "png"], key=f"uploaded_image_{st.session_state.upload_counter}")
 
 # Preview image
 if st.session_state.uploaded_image is not None:
@@ -68,10 +88,6 @@ if st.session_state.uploaded_image is not None:
             use_container_width=True
         )
 
-# Record voice input
-audio_input = st.audio_input("Record your question", key=f"audio_input_{st.session_state.upload_counter}")
-
-
 # _____FASTER-WHISPER MODEL: Speech Detection: Speech to Text____
 @st.cache_resource
 def load_whisper_model():
@@ -80,33 +96,49 @@ def load_whisper_model():
 whisper_model = load_whisper_model()
 payload = {}
 
-if audio_input:
-    st.audio(audio_input)
-    
-    # Speech to Text___
-    user_prompt, language_code, language_probability = transcribe_STT(whisper_model, audio_input.getvalue())
-    st.write(f"**You asked**: {user_prompt}")
+# Text input: Added for scalability of application. e.g, noisy environment or other users 
+st.toggle(
+    "Default Voice chat or Text chat",
+    key="text_mode",
+    value=False,    # voice is default
+)
+
+if st.session_state.text_mode:
+    # Text Input box: Question or user prompt
+    text_input = st.text_input(
+    "Write your question?", key=f"user_prompt_{st.session_state.upload_counter}")
+    language_code = detect_language_from_text(text_input)
     language_of_response = LANGUAGE_DICT.get(language_code, "English")
-    st.write(f"Detected language: {language_of_response}")
+    user_prompt = text_input
+else:
+    # Record voice input
+    audio_input = st.audio_input("Record your question", key=f"audio_input_{st.session_state.upload_counter}")
+    # Speech to Text___
+    if audio_input:
+        user_prompt, language_code, language_probability = transcribe_STT(whisper_model, audio_input.getvalue())
+        language_of_response = LANGUAGE_DICT.get(language_code, "English")
+
+if user_prompt:
+    #st.write(f"**You asked**: {user_prompt}")
+    #st.write(f"Detected language: {language_of_response}")
     
     # ___Infer resolution from keywords___
     if language_code != 'en':
-        user_prompt = translator(user_prompt, 'language_code', 'en')
-    
-    image_resolution_type = infer_resolution_from_prompt(user_prompt)
-    
-    st.caption(f"📷 Image resolution set to: {image_resolution_type}")
+        user_prompt_english = translator(user_prompt, language_code, 'en')
+    image_resolution_type = infer_resolution_from_prompt(user_prompt_english)
+    #st.caption(f"Image resolution set to: {image_resolution_type}")
 
     # ____Check image uploaded, speech detection___ 
     if not st.session_state.uploaded_image:
         st.markdown("""
             <div role="alert" aria-live="assertive">
-                    ⚠️ Please upload an image first!
+                    Please upload an image first!
             </div>
             """, unsafe_allow_html=True)
+    elif not user_prompt:
         st.markdown("""
             <div role="alert" aria-live="assertive">
-            ⚠️ Could not detect speech, please try again!
+             Could not detect your question, please try again!
             </div>
             """, unsafe_allow_html=True)
     else:
@@ -132,6 +164,7 @@ if audio_input:
             }
             files = {} # no image
 
+        
         # ____Request to the FastAPI endpoint____
         
         st.markdown("""
@@ -139,6 +172,7 @@ if audio_input:
             </div>
             """, unsafe_allow_html=True)
         
+        response = None
         with st.spinner("Getting AI response..."):
             try:
                 response = requests.post(url, data=payload, files=files)
@@ -157,42 +191,31 @@ if audio_input:
                     })
 
                     st.session_state.chat_history.append({
-                    "role": "llm_ai",
+                    "role": "assistant",
                     "content": final_response
                     })
 
-                    st.write("**Response:**")
-                    st.markdown(f"""
-                                <div 
-                                    aria-live="polite"
-                                    aria-atomic="true"
-                                    tabindex="0"
-                                    role="region"
-                                    aria-label="AI Response"
-                                    style="margin: 8px 0"
-                                >
-                                    {final_response}
-                                </div>
-                                """,unsafe_allow_html=True)
             except requests.exceptions.Timeout:
                 if st.session_state.tts_enabled:
                     unexpected_response_bytes = text_to_speech_gtts("Please take photo again. Server is not reachable", lang_code=language_code
                     )
                     autoplay_audio(unexpected_response_bytes)
 
-        if st.session_state.tts_enabled:
-            audio_bytes = text_to_speech_gtts(final_response, lang_code=language_code)
-            autoplay_audio(audio_bytes)
+            if st.session_state.tts_enabled:
+                audio_bytes = text_to_speech_gtts(final_response, lang_code=language_code)
+                autoplay_audio(audio_bytes)
 
-    render_chat_history()
+    
 
 
 # __________Reset Button____________
 st.button(
-    "📸 Take a New Photo",
+    "Start over",
     on_click=reset_inputs,
     use_container_width=True
 )
+
+render_chat_history()
 
 
 # _______Accessibility________

@@ -172,9 +172,31 @@ def translator(text:str, source_lang_code:str, dest_lang_code:str='en') -> str:
          Translated text (default english).
      """
      try:
-        translated = GoogleTranslator(source=source_lang_code, target="en").translate(text)
+        translated = GoogleTranslator(source=source_lang_code, target=dest_lang_code).translate(text)
         return translated
      except:
         return text
-
      
+def detect_language_from_text(text: str) -> str:
+    """
+    Detect language using Google Translate API.
+    Reuses deep-translator already in your project.
+
+    Parameters
+    ----------
+    text : str
+        User typed question.
+
+    Returns
+    -------
+    str
+        2-letter language code e.g. 'en', 'fi', 'ar'.
+    """
+    try:
+        _ = GoogleTranslator(source="auto", target="en").translate(text)
+        # source="auto" makes Google detect language automatically
+        lang = GoogleTranslator(source="auto", target="en")
+        lang.translate(text)
+        return lang.source    # returns detected language code
+    except Exception:
+        return "en"
