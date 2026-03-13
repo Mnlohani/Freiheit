@@ -35,7 +35,7 @@ fostering independence through multimodal large language models.
 
 FastAPI backend + Streamlit frontend, containerised with Docker.
 
-![Architecture](assets/images/architecture_1.png)
+![Architecture](assets/images/freiheit_architecture.svg)
 
 ### Tech Stack
 
@@ -66,8 +66,6 @@ FastAPI backend + Streamlit frontend, containerised with Docker.
 ---
 
 ## 🔬 R&D — Previous Research (v1.0)
-
-![Architecture for object detection with DistanceNN](assets/images/architecture_2.png)
 
 An earlier version explored distance prediction using a custom-trained CNN
 based on **DINOv2 Vision Transformer embeddings** (transfer learning).

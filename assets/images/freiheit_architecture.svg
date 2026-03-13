@@ -1,0 +1,100 @@
+<svg width="680" viewBox="0 0 680 820" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="680" height="820" fill="#ffffff"/>
+
+  <!-- USER -->
+  <rect x="240" y="20" width="200" height="44" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.5"/>
+  <text x="340" y="47" text-anchor="middle" font-size="14" font-weight="500" fill="#2C2C2A">User</text>
+
+  <!-- Arrows from user -->
+  <line x1="290" y1="64" x2="180" y2="108" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="390" y1="64" x2="500" y2="108" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Voice input -->
+  <rect x="90" y="108" width="180" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="180" y="132" text-anchor="middle" font-size="14" font-weight="500" fill="#085041">Voice input</text>
+  <text x="180" y="152" text-anchor="middle" font-size="12" fill="#0F6E56">Audio recorder</text>
+
+  <!-- Image input -->
+  <rect x="410" y="108" width="180" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="500" y="132" text-anchor="middle" font-size="14" font-weight="500" fill="#085041">Image input</text>
+  <text x="500" y="152" text-anchor="middle" font-size="12" fill="#0F6E56">Upload or camera</text>
+
+  <!-- Arrows down -->
+  <line x1="180" y1="164" x2="180" y2="208" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="500" y1="164" x2="500" y2="248" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- STT -->
+  <rect x="90" y="208" width="180" height="56" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="180" y="232" text-anchor="middle" font-size="14" font-weight="500" fill="#26215C">STT</text>
+  <text x="180" y="252" text-anchor="middle" font-size="12" fill="#534AB7">Faster-Whisper</text>
+
+  <!-- Arrow STT to Language -->
+  <line x1="180" y1="264" x2="180" y2="308" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Language detect -->
+  <rect x="90" y="308" width="180" height="56" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="180" y="332" text-anchor="middle" font-size="14" font-weight="500" fill="#26215C">Language detect</text>
+  <text x="180" y="352" text-anchor="middle" font-size="12" fill="#534AB7">Auto translate to EN</text>
+
+  <!-- Session state -->
+  <rect x="410" y="248" width="180" height="56" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+  <text x="500" y="272" text-anchor="middle" font-size="14" font-weight="500" fill="#26215C">Session state</text>
+  <text x="500" y="292" text-anchor="middle" font-size="12" fill="#534AB7">Image context cache</text>
+
+  <!-- Arrows to Streamlit -->
+  <line x1="180" y1="364" x2="260" y2="418" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="500" y1="304" x2="420" y2="418" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Streamlit frontend -->
+  <rect x="190" y="418" width="300" height="56" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+  <text x="340" y="442" text-anchor="middle" font-size="14" font-weight="500" fill="#042C53">Streamlit frontend</text>
+  <text x="340" y="462" text-anchor="middle" font-size="12" fill="#185FA5">Builds request payload</text>
+
+  <!-- Arrow to FastAPI -->
+  <line x1="340" y1="474" x2="340" y2="518" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- FastAPI backend -->
+  <rect x="190" y="518" width="300" height="56" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+  <text x="340" y="542" text-anchor="middle" font-size="14" font-weight="500" fill="#042C53">FastAPI backend</text>
+  <text x="340" y="562" text-anchor="middle" font-size="12" fill="#185FA5">Router prompt classifier</text>
+
+  <!-- Arrow to LangChain -->
+  <line x1="340" y1="574" x2="340" y2="618" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- LangChain -->
+  <rect x="190" y="618" width="300" height="56" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+  <text x="340" y="642" text-anchor="middle" font-size="14" font-weight="500" fill="#412402">LangChain</text>
+  <text x="340" y="662" text-anchor="middle" font-size="12" fill="#854F0B">Model agnostic LLM layer</text>
+
+  <!-- Arrow to LLM -->
+  <line x1="340" y1="674" x2="340" y2="718" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- LLM -->
+  <rect x="190" y="718" width="300" height="56" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+  <text x="340" y="742" text-anchor="middle" font-size="14" font-weight="500" fill="#412402">LLM</text>
+  <text x="340" y="762" text-anchor="middle" font-size="12" fill="#854F0B">GPT-4o / LLaVA / LLaMA3</text>
+
+  <!-- AI Response loop (right side) -->
+  <path d="M492 746 L580 746 L580 474 L492 474" fill="none" stroke="#888780" stroke-width="1" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <text x="600" y="614" text-anchor="middle" font-size="11" fill="#5F5E5A" transform="rotate(90,600,614)">AI response</text>
+
+  <!-- TTS -->
+  <rect x="90" y="518" width="160" height="56" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+  <text x="170" y="542" text-anchor="middle" font-size="14" font-weight="500" fill="#4A1B0C">TTS</text>
+  <text x="170" y="562" text-anchor="middle" font-size="12" fill="#993C1D">gTTS autoplay</text>
+
+  <!-- Arrow FastAPI to TTS -->
+  <line x1="190" y1="546" x2="252" y2="546" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Voice response loop (left side) -->
+  <path d="M90 546 L40 546 L40 42 L240 42" fill="none" stroke="#888780" stroke-width="1" stroke-dasharray="5 4" marker-end="url(#arrow)"/>
+  <text x="20" y="300" text-anchor="middle" font-size="11" fill="#5F5E5A" transform="rotate(-90,20,300)">Voice response</text>
+
+</svg>
