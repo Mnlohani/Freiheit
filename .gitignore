@@ -18,7 +18,6 @@ env/
 !data/01_raw/.gitkeep
 data/01_raw/*
 
-
 # vscode
 .vscode/
 
@@ -27,5 +26,15 @@ notebooks/
 responses.csv
 data/01_raw/*
 
+/bin
+/data
+/logs
+/results
+/notebooks
+logs/
+bin/
+.ruff_cache/
+
 # DINOv2 model pre-trained tensors
 data/03_models/DINOv2_HuggingFace/dinov2_model/model.safetensors
+
