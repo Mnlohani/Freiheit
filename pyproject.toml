@@ -19,6 +19,7 @@ dependencies = [
     "python-multipart>=0.0.22",
     "streamlit==1.40.0",
     "streamlit-javascript>=0.1.5",
+    "tornado>=6.5.5",
     "uvicorn>=0.41.0",
 ]
 
