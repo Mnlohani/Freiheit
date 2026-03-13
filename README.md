@@ -202,10 +202,8 @@ Freiheit/
 │   ├── backend/          # FastAPI endpoints
 │   ├── frontend/         # Streamlit UI
 │   ├── models/           # LLM + legacy DistanceNN
-│   └── utils/            #
-Legacy DistanceNN
+│   └── utils/            # Voice, image, LLM utilities
 │   └── visualisation
-Voice, image, LLM utilities
 ├── assets/               # Images and demo content
 ├── docker-compose.yml
 ├── pyproject.toml        # uv dependencies
