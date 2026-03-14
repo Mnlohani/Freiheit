@@ -26,7 +26,6 @@ This demo uses Faster-Whisper (state-of-the-art STT engine) for Speech-to-Text w
 | v2.0 — Mobile                   | Same app on mobile browser (Upload pending) | [Watch ▶️]                                              |
 | v1.0 — Legacy                   | DistanceNN + Vision Transformers            | [Watch ▶️](https://www.youtube.com/watch?v=JOuQfZIHabc) |
 
-````
 ---
 
 ## ✨ Key Features
@@ -165,7 +164,7 @@ git clone https://github.com/Mnlohani/Freiheit
 
 # Create a .env file in project root
 echo "Gemini_API_KEY=your_key_here" > .env
-````
+```
 
 ### Run with Docker (Recommended)
 
