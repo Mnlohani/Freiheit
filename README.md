@@ -14,16 +14,17 @@ designed to help blind and visually impaired individuals with daily tasks,
 fostering independence through multimodal large language models.
 
  <table><tr><td><img src="assets/images/Demo_image_1.png"></td><td><img src="assets/images/Demo_image_2.png"></td></tr></table>
+
 ## Demo
 
-| Version                         | Description                  | Link                                     |
-| ------------------------------- | ---------------------------- | ---------------------------------------- |
-| v2.0 — Desktop with voice input | FastAPI + Docker + Streamlit | [Watch ▶️](https://youtu.be/Io9-LBCM3v4) |
+This demo uses Faster-Whisper (state-of-the-art STT engine) for Speech-to-Text with the small size model and INT8 quantization on CPU. so, the transcription speed is reduced accordingly. The GPU support is provided for GPU enabaled systems.
 
-()
-| v2.0 — Desktop with Text input | FastAPI + Docker + Streamlit | [Watch ▶️](https://youtu.be/zexlZ2o_TgE) |
-| v2.0 — Mobile | Same app on mobile browser (Upload pending) | [Watch ▶️]() |
-| v1.0 — Legacy | DistanceNN + Vision Transformers | [Watch ▶️](https://www.youtube.com/watch?v=JOuQfZIHabc) |
+| Version                         | Description                                 | Link                                                    |
+| ------------------------------- | ------------------------------------------- | ------------------------------------------------------- |
+| v2.0 — Desktop with voice input | FastAPI + Docker + Streamlit                | [Watch ▶️](https://youtu.be/Io9-LBCM3v4)                |
+| v2.0 — Desktop with Text input  | FastAPI + Docker + Streamlit                | [Watch ▶️](https://youtu.be/zexlZ2o_TgE)                |
+| v2.0 — Mobile                   | Same app on mobile browser (Upload pending) | [Watch ▶️]                                              |
+| v1.0 — Legacy                   | DistanceNN + Vision Transformers            | [Watch ▶️](https://www.youtube.com/watch?v=JOuQfZIHabc) |
 
 ````
 ---
