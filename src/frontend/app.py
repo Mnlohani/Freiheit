@@ -5,6 +5,7 @@ import warnings
 import os
 from faster_whisper import WhisperModel
 from dotenv import load_dotenv
+import ctranslate2
 
 from src.utils.gui_utils import (
     render_chat_history,
@@ -36,8 +37,9 @@ url = os.getenv("BACKEND_URL") + API_ENDPOINT
 # ____________SESSION STATE INITIALISATION________________
 
 # Initialise local and session variable
-audio_input = None    # ← local default
-user_prompt = None 
+audio_input = None    
+user_prompt = None
+user_prompt_english = None
 
 dict_init_session_var = {  
                          "uploaded_image": None, 
@@ -91,7 +93,9 @@ if st.session_state.uploaded_image is not None:
 # _____FASTER-WHISPER MODEL: Speech Detection: Speech to Text____
 @st.cache_resource
 def load_whisper_model():
-    return WhisperModel(model_size_or_path="small", device="cpu", compute_type="int8")
+    device = "cuda" if ctranslate2.get_cuda_device_count() > 0 else "cpu"
+    compute_type = "float16" if device == "cuda" else "int8"
+    return WhisperModel(model_size_or_path="small", device=device, compute_type=compute_type)
 
 whisper_model = load_whisper_model()
 payload = {}
@@ -117,16 +121,20 @@ else:
     if audio_input:
         user_prompt, language_code, language_probability = transcribe_STT(whisper_model, audio_input.getvalue())
         language_of_response = LANGUAGE_DICT.get(language_code, "English")
+    
 
 if user_prompt:
     #st.write(f"**You asked**: {user_prompt}")
     #st.write(f"Detected language: {language_of_response}")
     
-    # ___Infer resolution from keywords___
+    # ___Infer resolution from keywords in Human Question___
     if language_code != 'en':
         user_prompt_english = translator(user_prompt, language_code, 'en')
+    else:
+        user_prompt_english = user_prompt
+    
     image_resolution_type = infer_resolution_from_prompt(user_prompt_english)
-    #st.caption(f"Image resolution set to: {image_resolution_type}")
+    st.caption(f"Image resolution set to: {image_resolution_type}")
 
     # ____Check image uploaded, speech detection___ 
     if not st.session_state.uploaded_image:

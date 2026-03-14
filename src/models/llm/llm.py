@@ -105,7 +105,7 @@ def get_response(
         str: Response from the AI model
     """
     message_to_model = construct_message(
-        b64image,user_prompt, language_of_response
+        b64image, user_prompt, language_of_response
     )
     ai_msg = model.invoke(message_to_model)
     return ai_msg.content
