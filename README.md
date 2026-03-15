@@ -19,7 +19,7 @@ to validate these use cases across diverse environments.
 ## Demo
 
 Demo videos are recorded on CPU. GPU-enabled systems will have faster
-STT transcription via automatic hardware detection. The current state of art STT engine (Faster-Whisper)is being used with small model size and INT8 quantization for CPUs.
+Speach to Text (STT) transcription via automatic hardware detection. To meet a balance between accuracy and speed in CPUs the current state-of-art Faster-Whisper model is used with model size as small, INT8 quantization, beam-size (the number of alternative hypotheses during speech decoding) as 1 and VAD (Voice Activity Detection).
 
 | Version                         | Description                                 | Link                                                    |
 | ------------------------------- | ------------------------------------------- | ------------------------------------------------------- |
