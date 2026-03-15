@@ -98,7 +98,7 @@ def get_response(
     Args:
         model (object): The llm model
         b64image (str): the base64 encoded image
-        user_pronpt (str): Question asked by the user
+        user_prompt (str): Question asked by the user
         language_of_response (str): Language of the response
 
     Returns:

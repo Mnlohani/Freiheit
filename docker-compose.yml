@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: src/backend/backend.Dockerfile
     ports:
-      - "8000:8000" # outside_port : inside_port
+      - "8000:8000"
     env_file: .env
     restart: unless-stopped
 
@@ -15,7 +15,6 @@ services:
     ports:
       - "8501:8501"
     environment:
-      # Use the service name defined above as the hostname
       - BACKEND_URL=http://backend:8000
     depends_on:
       - backend

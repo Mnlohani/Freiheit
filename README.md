@@ -9,15 +9,17 @@
 [![LangChain](https://img.shields.io/badge/LangChain-LLM_Framework-yellow)](https://langchain.com)
 [![uv](https://img.shields.io/badge/uv-Package_Manager-purple)](https://github.com/astral-sh/uv)
 
-**Freiheit** (German: _Freedom_) is an AI-powered accessibility assistant
-designed to help blind and visually impaired individuals with daily tasks,
-fostering independence through multimodal large language models.
+**Freiheit** (German: _Freedom_) is an AI-powered vision assistant
+designed to help blind and low-vision individuals to assist with their daily tasks,
+fostering independence through multimodal large language models. This product is developed after a deep use case research from various sources including consulting with blind people, videos and research papers. A dataset of 2,000+ real-world images was created specifically
+to validate these use cases across diverse environments.
 
  <table><tr><td><img src="assets/images/Demo_image_1.png"></td><td><img src="assets/images/Demo_image_2.png"></td></tr></table>
 
 ## Demo
 
-This demo uses Faster-Whisper (state-of-the-art STT engine) for Speech-to-Text with the small size model and INT8 quantization on CPU. so, the transcription speed is reduced accordingly. The GPU support is provided for GPU enabaled systems.
+Demo videos are recorded on CPU. GPU-enabled systems will have faster
+STT transcription via automatic hardware detection. The current state of art STT engine (Faster-Whisper)is being used with small model size and INT8 quantization for CPUs.
 
 | Version                         | Description                                 | Link                                                    |
 | ------------------------------- | ------------------------------------------- | ------------------------------------------------------- |
@@ -30,12 +32,12 @@ This demo uses Faster-Whisper (state-of-the-art STT engine) for Speech-to-Text w
 
 ## ✨ Key Features
 
-- 🎤 **Voice & Text Chat** — Multi-turn conversation with image context retained
+- 🎤 **Voice & Text Chat** — Multi-turn conversation with image and chat context retained
 - 🌍 **Multilingual** — Auto language detection, translation & response
 - 📷 **Camera & Upload** — Live photo or image upload support
 - 🔊 **TTS/STT** — Faster-Whisper (Speech-to-Text) + gTTS (Text-to-Speech)
 - ♿ **Accessibility First** — ARIA labels, screen reader compatible UI
-- 🤖 **Model Agnostic** — Supports GPT-4o, LLaVA, LLaMA3 via LangChain
+- 🤖 **Model Agnostic** — Supports Gemini, GPT-4o, LLaVA (LLaMA3) via LangChain
 
 ---
 

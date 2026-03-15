@@ -1,7 +1,7 @@
 [project]
 name = "freiheit"
 version = "0.1.0"
-description = "A Proof of Concept(POC) designed to assist people with low vision and blindness"
+description = "An Application designed to assist people with low vision and blindness"
 readme = "README.md"
 requires-python = ">=3.11.4"
 dependencies = [
