@@ -23,7 +23,7 @@ Speach to Text (STT) transcription via automatic hardware detection. To meet a b
 
 | Version                         | Description                                 | Link                                                    |
 | ------------------------------- | ------------------------------------------- | ------------------------------------------------------- |
-| v2.0 — Desktop with voice input | FastAPI + Docker + Streamlit                | [Watch ▶️](https://youtu.be/Io9-LBCM3v4)                |
+| v2.0 — Desktop with voice input | FastAPI + Docker + Streamlit                | [Watch ▶️](https://youtu.be/OrY7ElUFmAI)                |
 | v2.0 — Desktop with Text input  | FastAPI + Docker + Streamlit                | [Watch ▶️](https://youtu.be/zexlZ2o_TgE)                |
 | v2.0 — Mobile                   | Same app on mobile browser (Upload pending) | [Watch ▶️]                                              |
 | v1.0 — Legacy                   | DistanceNN + Vision Transformers            | [Watch ▶️](https://www.youtube.com/watch?v=JOuQfZIHabc) |
