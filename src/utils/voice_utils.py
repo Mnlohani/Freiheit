@@ -125,12 +125,10 @@ def autoplay_audio(audio_bytes: bytes, format: str = "audio/mp3"):
             # encode raw bytes to base64 string so HTML can embed it inline
             audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
             audio_html = f"""
-                <audio autoplay controls style="width:100%">
-                    <source src="data:{format};base64,{audio_base64}" type="{format}">
-            </audio>
-            """
-            components.html(audio_html, height=60)
-
+                        <audio autoplay>
+                        <source src="data:{format};base64,{audio_base64}" type="{format}">
+                        </audio>
+                        """
 
 def infer_resolution_from_prompt(user_prompt:str):
     """Infer the best image resolution based on keywords in the user prompt.

@@ -115,6 +115,7 @@ def reset_inputs() -> None:
         st.session_state.chat_history = []
         st.session_state.image_context = None
         st.session_state.text_mode = False
+        st.session_state.tts_enabled = False
     
 
     

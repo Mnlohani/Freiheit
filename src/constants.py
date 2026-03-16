@@ -4,7 +4,9 @@ API_ENDPOINT = "/get_ai_response"
 WIDGET_KEYS = [
     "uploaded_image",
     "audio_input",
-    "image_resolution_type"
+    "image_resolution_type",
+    "text_mode",
+    "tts_enabled",
 ]
 
 # GUI Constants
@@ -116,7 +118,7 @@ RESOLUTION_KEYWORD_MAP = {
         "product", "bottle", "can", "package", "brand",
         
         # Close object — Option 8
-        "front", "holding", "touching", "this object", "what is this",  
+        "front", "holding", "touching", "this object", "what is this", "in my hand"  
     ],
     
     "High": [

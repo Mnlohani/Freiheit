@@ -46,7 +46,8 @@ dict_init_session_var = {
                          "upload_counter": 0, 
                          "chat_history":[],
                          "image_context": None,
-                         "text_mode" : False}
+                         "text_mode" : False,
+                         "tts_enabled": False}
 
 for key, value in dict_init_session_var.items():
     if key not in st.session_state:
