@@ -21,12 +21,12 @@ to validate these use cases across diverse environments.
 Demo videos are recorded on CPU. GPU-enabled systems will have faster
 Speach to Text (STT) transcription via automatic hardware detection. To meet a balance between accuracy and speed in CPUs the current state-of-art Faster-Whisper model is used with model size as small, INT8 quantization, beam-size (the number of alternative hypotheses during speech decoding) as 1 and VAD (Voice Activity Detection).
 
-| Version                         | Description                                 | Link                                                    |
-| ------------------------------- | ------------------------------------------- | ------------------------------------------------------- |
-| v2.0 — Desktop with voice input | FastAPI + Docker + Streamlit                | [Watch ▶️](https://youtu.be/OrY7ElUFmAI)                |
-| v2.0 — Desktop with Text input  | FastAPI + Docker + Streamlit                | [Watch ▶️](https://youtu.be/zexlZ2o_TgE)                |
-| v2.0 — Mobile                   | Same app on mobile browser (Upload pending) | [Watch ▶️]                                              |
-| v1.0 — Legacy                   | DistanceNN + Vision Transformers            | [Watch ▶️](https://www.youtube.com/watch?v=JOuQfZIHabc) |
+| Version                               | Description                      | Link                                                    |
+| ------------------------------------- | -------------------------------- | ------------------------------------------------------- |
+| v2.0 — Mobile device with voice input | FastAPI + Docker + Streamlit     | [Watch ▶️](https://youtu.be/DKLlWzGoMVk)                |
+| v2.0 — Desktop with voice input       | FastAPI + Docker + Streamlit     | [Watch ▶️](https://youtu.be/OrY7ElUFmAI)                |
+| v2.0 — Desktop with Text input        | FastAPI + Docker + Streamlit     | [Watch ▶️](https://youtu.be/zexlZ2o_TgE)                |
+| v1.0 — Legacy                         | DistanceNN + Vision Transformers | [Watch ▶️](https://www.youtube.com/watch?v=JOuQfZIHabc) |
 
 ---
 
