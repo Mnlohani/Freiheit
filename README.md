@@ -43,11 +43,15 @@ Speach to Text (STT) transcription via automatic hardware detection. To meet a b
 
 ## 🏗️ Architecture
 
-### Current Architecture (v2.0)
+### Current Software Architecture (v2.0)
 
 FastAPI backend + Streamlit frontend, containerised with Docker.
 
 ![Architecture](assets/images/freiheit_architecture.svg)
+
+### Data Preprocessing (V2.0)
+
+![Architecture](assets/images/Data_preprocessingV2.png)
 
 ### Tech Stack
 
@@ -60,7 +64,7 @@ FastAPI backend + Streamlit frontend, containerised with Docker.
 | Text-to-Speech   | gTTS                              |
 | Package Manager  | uv                                |
 | Containerisation | Docker + Docker Compose           |
-| Models Supported | GPT-4o, LLaVA, LLaMA3             |
+| Models Supported | Gemini, GPT-4o, LLaVA, LLaMA3     |
 
 ## 🧠 Engineering Highlights
 
@@ -146,6 +150,14 @@ directly informed the v2.0 architecture decisions._
 
 - Distance estimation to obstacles ahead
 - Object identification
+</details>
+
+<details>
+<summary><b> At Home </b></summary>
+
+- Most of all things. Laundry, cloths, medicine, products, fridge
+- Object identification
+- Tested with all above cases
 </details>
 
 ---
