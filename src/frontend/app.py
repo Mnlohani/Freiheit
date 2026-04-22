@@ -1,38 +1,80 @@
-from PIL import Image
-import streamlit as st
+#____________ Load Libraries ________________
+import os
 import requests
 import warnings
-import os
-from faster_whisper import WhisperModel
+
+from PIL import Image
+import streamlit as st
+import streamlit.components.v1 as components
 from dotenv import load_dotenv
+from faster_whisper import WhisperModel
 import ctranslate2
 
+from src.constants import API_ENDPOINT, LANGUAGE_DICT
 from src.utils.gui_utils import (
-    render_chat_history,
-    set_background_image,
-    reset_inputs,
-    set_title,
+    render_chat_history, 
+    set_background_image, 
+    reset_inputs, 
+    set_title
+    )
+from src.utils.voice_utils import (
+    autoplay_audio, 
+    detect_language_from_text, 
+    infer_resolution_from_prompt, 
+    text_to_speech_gtts, 
+    transcribe_STT, 
+    translator
 )
 
-from src.constants import (
-    API_ENDPOINT,
-    LANGUAGE_DICT
-)
-from src.utils.voice_utils import autoplay_audio, detect_language_from_text, infer_resolution_from_prompt, text_to_speech_gtts, transcribe_STT, translator
-
-
-warnings.filterwarnings("ignore")  # Ignore warnings
-load_dotenv() 
-
-
-# ------ GUI Design ------
-
-# set background image and title
-set_background_image((800, 600))
-set_title()
-
+#____________ Load ENV variables & Ignore Warning ________________
+warnings.filterwarnings("ignore")  
+load_dotenv()
 url = os.getenv("BACKEND_URL") + API_ENDPOINT
 
+# ____________CSS: Larger camera & auto back camera ON in Streamlit ________________
+components.html("""
+    <script>
+        // Override getUserMedia on the PARENT page before Streamlit camera loads
+        const original = window.parent.navigator.mediaDevices.getUserMedia.bind(
+            window.parent.navigator.mediaDevices
+        );
+
+        window.parent.navigator.mediaDevices.getUserMedia = function(constraints) {
+            if (constraints && constraints.video) {
+                constraints.video = { facingMode: { exact: "environment" } };
+            }
+            return original(constraints).catch(() => {
+                constraints.video = { facingMode: "environment" };
+                return original(constraints);
+            });
+        };
+    </script>
+""", height=0)
+
+st.markdown("""
+    <style>
+        [data-testid="stCameraInput"] video,
+        [data-testid="stCameraInput"] canvas {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            min-height: 300px;
+        }
+        [data-testid="stCameraInput"] {
+            width: 100% !important;
+        }
+        @media (max-width: 768px) {
+            [data-testid="stCameraInput"] video,
+            [data-testid="stCameraInput"] canvas {
+                min-height: 400px !important;
+            }
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# ____________Background Image set ________________
+set_background_image((800, 600))
+set_title()
 
 # ____________SESSION STATE INITIALISATION________________
 
@@ -47,19 +89,21 @@ dict_init_session_var = {
                          "chat_history":[],
                          "image_context": None,
                          "text_mode" : False,
-                         "tts_enabled": False}
+                         "tts_enabled": False,
+                         "last_audio": None}
 
 for key, value in dict_init_session_var.items():
     if key not in st.session_state:
         st.session_state[key] = value
 
+# ____________GUI Design________________
 st.toggle(
     "Default Screen Reader or Automatic voice responses",
     key="tts_enabled",
     value=False,
 )
 
-# Radio button selection
+#Radio button selection
 input_method = st.radio(
     "Choose how to provide image",
     ["Upload Image", "Take Photo"],
@@ -80,18 +124,15 @@ else:
         key=f"uploaded_image_{st.session_state.upload_counter}"
     )
 
-# SelectionBox: image input
-# st.session_state.uploaded_image = st.file_uploader("Choose an image", type=["jpg", "jpeg", "png"], key=f"uploaded_image_{st.session_state.upload_counter}")
-
 # Preview image
 if st.session_state.uploaded_image is not None:
     st.image(
             Image.open(st.session_state.uploaded_image),
             caption="Uploaded image",
             use_container_width=True
-        )
+)
 
-# _____FASTER-WHISPER MODEL: Speech Detection: Speech to Text____
+# ________  Speech Detection: Speech to Text: FASTER-WHISPER MODEL _______
 @st.cache_resource
 def load_whisper_model():
     device = "cuda" if ctranslate2.get_cuda_device_count() > 0 else "cpu"
@@ -125,9 +166,6 @@ else:
     
 
 if user_prompt:
-    #st.write(f"**You asked**: {user_prompt}")
-    #st.write(f"Detected language: {language_of_response}")
-    
     # ___Infer resolution from keywords in Human Question___
     if language_code != 'en':
         user_prompt_english = translator(user_prompt, language_code, 'en')
@@ -173,8 +211,7 @@ if user_prompt:
             }
             files = {} # no image
 
-        
-        # ____Request to the FastAPI endpoint____
+        # ______ Request to the FastAPI endpoint _______
         
         st.markdown("""
             <div role="status" aria-live="polite" aria-label="Getting AI response, please wait">
@@ -204,18 +241,18 @@ if user_prompt:
                     "content": final_response
                     })
 
+                    if st.session_state.tts_enabled:
+                        audio_bytes = text_to_speech_gtts(final_response, lang_code=language_code)
+                        st.session_state.last_audio = audio_bytes
+                        autoplay_audio(st.session_state.last_audio)
+                        st.session_state.last_audio = None
+            
             except requests.exceptions.Timeout:
                 if st.session_state.tts_enabled:
                     unexpected_response_bytes = text_to_speech_gtts("Please take photo again. Server is not reachable", lang_code=language_code
                     )
                     autoplay_audio(unexpected_response_bytes)
-
-            if st.session_state.tts_enabled:
-                audio_bytes = text_to_speech_gtts(final_response, lang_code=language_code)
-                autoplay_audio(audio_bytes)
-
-    
-
+                    st.session_state.last_audio = None
 
 # __________Reset Button____________
 st.button(
@@ -225,7 +262,6 @@ st.button(
 )
 
 render_chat_history()
-
 
 # _______Accessibility________
 # MutationObserver watches: every DOM change --> labels reapplied immediately 
