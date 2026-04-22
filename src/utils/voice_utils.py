@@ -40,7 +40,7 @@ def transcribe_STT(whisper_model: WhisperModel, audio_bytes: bytes) -> tuple:
             </div>
             """, unsafe_allow_html=True)
 
-    with st.spinner("Transcribing your audio... 🎙️ "):
+    with st.spinner("Transcribing your audio..."):
         try:
             segments, info = whisper_model.transcribe(tmp_path, 
                                                       beam_size=1, 
@@ -129,6 +129,7 @@ def autoplay_audio(audio_bytes: bytes, format: str = "audio/mp3"):
                         <source src="data:{format};base64,{audio_base64}" type="{format}">
                         </audio>
                         """
+            st.markdown(audio_html, unsafe_allow_html=True)
 
 def infer_resolution_from_prompt(user_prompt:str):
     """Infer the best image resolution based on keywords in the user prompt.
