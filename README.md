@@ -47,7 +47,9 @@ Speach to Text (STT) transcription via automatic hardware detection. To meet a b
 
 FastAPI backend + Streamlit frontend, containerised with Docker.
 
-![Architecture](assets/images/freiheit_architecture.svg)
+## ![Architecture Front end](assets/images/Front_end.png)
+
+![Architecture Back end](assets/images/Back_end.png)
 
 ### Data Preprocessing (V2.0)
 
@@ -258,3 +260,60 @@ BACKEND_URL=http://localhost:8000
 ![DistanceNN](assets/images/DistanceNN.png)
 _Background image by
 [giorgiotrovato](https://unsplash.com/de/@giorgiotrovato)_
+
+- What is Whisper model?  
+  Whisper is a general-purpose speech recognition model. It is trained on a large dataset of diverse audio and is also a multitasking model that can perform multilingual speech recognition, speech translation, and language identification. A Transformer sequence-to-sequence model is trained on various speech processing tasks, including multilingual speech recognition, speech translation, spoken language identification, and voice activity detection. These tasks are jointly represented as a sequence of tokens to be predicted by the decoder, allowing a single model to replace many stages of a traditional speech-processing pipeline. The multitask training format uses a set of special tokens that serve as task specifiers or classification targets.
+
+- What is Faster-Whisper model?  
+  faster-whisper is a reimplementation of OpenAI's Whisper model using CTranslate2, which is a fast inference engine for Transformer models.
+
+- What is CTranslate2?  
+  CTranslate2 is a C++ and Python library for efficient inference with Transformer models. The project implements a custom runtime that applies many performance optimization techniques such as weights quantization, layers fusion, batch reordering, etc., to accelerate and reduce the memory usage of Transformer models on CPU and GPU.
+
+- What is quantization?  
+  Quantization is the process of reducing the numerical precision of a machine learning model's weights and computations—for example, converting 32-bit floating-point (FP32) values to 16-bit floating-point (FP16) or 8-bit integers (INT8). This reduces memory usage and often speeds up inference, while keeping the model's accuracy nearly the same.
+
+- What is beam_size in Faster-Whisper?
+  Beam search is a decoding algorithm used to determine the most likely transcription.
+  - Beam Size = 1: This is called greedy decoding. The model simply picks the most probable word at each step.
+    Example: I → am → learning → AI
+    Fastest, Uses the least memory, May miss a better overall sentence because it never considers alternative paths.
+  - beam_size = 5
+    The model keeps the 5 most likely sentence candidates while decoding.
+    Example:
+    Path 1: I am learning AI.
+    Path 2: I am studying AI.
+    Path 3: I have learned AI.
+    Path 4: I am reading AI.
+    Path 5: I'm learning AI.  
+    Picks sentence with the highest overall probability. Better accuracy, Better for noisy audio, Slower, Uses more memory.
+
+- What is VAD?  
+  VAD = Voice Activity Detection. It detects parts of the audio where someone is actually speaking.  
+  Example:  
+  0-3 sec Silence.  
+  3-10 sec Speech.  
+  10-15 sec Silence.  
+  15-22 sec Speech.
+  - Without VAD:  
+    Entire audio.
+    ↓  
+    Whisper processes everything
+  - With VAD
+    Silence - skipped.  
+    Speech ✔ transcribed.  
+    Silence - skipped.  
+    Speech ✔ transcribed.
+
+- What is Router based Prompt Structure?  
+  A router-based prompt structure is a prompt engineering pattern where an AI system first classifies or routes a user's request to the most appropriate prompt, workflow, or specialized model before generating the final response.  
+  Other type of Prompt structures:
+  - Chain-of-Thought (CoT): The model is instructed to solve a problem step by step. Best for Math, Reasoning
+  - Few-shot Prompting: Provide examples before asking the real question.Translation, Classification
+  - Zero-shot Prompting, for simple tasks
+  - ReAct: Reason + Act (using tools), AI Agents etc. Question -> thought -> observation -> calculaion
+  - RAG: Question -> Vector Database -> Retrive relevant document first -> LLM -> Answer
+  - Prmpt Chaining: Break a complex task into multiple Prompts. Each prompt does a specific task and then ouutput of previous becomes the input to the next.
+  - Tree of Thoughts (ToT): Instead of following oen reasoning path, the model explores multiple possibilities and select the best one. Example, Planning, puzzl solving, strategy tasks
+  - Role based Prompting: Assign the model a role.
+  - Agentic: Plan and execute tasks Autonomously. AI Copiolts, automation
