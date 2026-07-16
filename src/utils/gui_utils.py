@@ -1,6 +1,8 @@
 import base64
 import streamlit as st
 from PIL import Image
+import requests
+import os
 
 from src.constants import (
     INPUT_BG_IMAGE_PATH,
@@ -99,24 +101,40 @@ def set_title() -> None:
 def reset_inputs() -> None:
     """
     Reset all Streamlit widgets and session state back to their defaults.
-
+ 
     Streamlit widgets are controlled by their session state key.
     Deleting the key forces Streamlit to re-render the widget as fresh/empty.
-    st.rerun() is called at the end to immediately reflect the reset in the UI.
-
+ 
+    Also tells the backend to drop this session's stored image + chat
+    history (best-effort -- if the backend call fails, we still reset the
+    frontend so the UI never gets stuck).
+ 
     Returns
     -------
     None
     """
+    session_id = st.session_state.get("session_id")
+    if session_id:
+        try:
+            base_url = os.getenv("BACKEND_URL")
+            requests.post(
+                f"{base_url}/reset_session",
+                data={"session_id": session_id},
+                timeout=3,
+            )
+        except requests.exceptions.RequestException:
+            pass  # non-fatal: worst case the server holds an orphaned session
+ 
     for key in WIDGET_KEYS:
         if key in st.session_state:
-            del st.session_state[key]   # deleting keys to reset the widget
-        st.session_state.upload_counter = st.session_state.get("upload_counter", 0) + 1
-        st.session_state.chat_history = []
-        st.session_state.image_context = None
-        st.session_state.text_mode = False
-        st.session_state.tts_enabled = False
-    
+            del st.session_state[key]  # deleting keys to reset the widget
+ 
+    st.session_state.upload_counter = st.session_state.get("upload_counter", 0) + 1
+    st.session_state.chat_history = []
+    st.session_state.session_id = None  # was image_context; new persistence key
+    st.session_state.text_mode = False
+    st.session_state.tts_enabled = False
+ 
 
     
 def render_chat_history() -> None:
