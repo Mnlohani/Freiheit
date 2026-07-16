@@ -12,22 +12,22 @@ import ctranslate2
 
 from src.constants import API_ENDPOINT, LANGUAGE_DICT
 from src.utils.gui_utils import (
-    render_chat_history, 
-    set_background_image, 
-    reset_inputs, 
+    render_chat_history,
+    set_background_image,
+    reset_inputs,
     set_title
     )
 from src.utils.voice_utils import (
-    autoplay_audio, 
-    detect_language_from_text, 
-    infer_resolution_from_prompt, 
-    text_to_speech_gtts, 
-    transcribe_STT, 
+    autoplay_audio,
+    detect_language_from_text,
+    infer_resolution_from_prompt,
+    text_to_speech_gtts,
+    transcribe_STT,
     translator
 )
 
 #____________ Load ENV variables & Ignore Warning ________________
-warnings.filterwarnings("ignore")  
+warnings.filterwarnings("ignore")
 load_dotenv()
 url = os.getenv("BACKEND_URL") + API_ENDPOINT
 
@@ -79,16 +79,19 @@ set_title()
 # ____________SESSION STATE INITIALISATION________________
 
 # Initialise local and session variable
-audio_input = None    
+audio_input = None
 user_prompt = None
 user_prompt_english = None
 
-dict_init_session_var = {  
-                         "uploaded_image": None, 
-                         "upload_counter": 0, 
-                         "chat_history":[],
-                         "image_context": None,
-                         "text_mode" : False,
+# NOTE: "image_context" replaced with "session_id".
+# The backend now owns the actual conversation state (image + history),
+# keyed by this session_id. The frontend just carries the key around.
+dict_init_session_var = {
+                         "uploaded_image": None,
+                         "upload_counter": 0,
+                         "chat_history": [],
+                         "session_id": None,
+                         "text_mode": False,
                          "tts_enabled": False,
                          "last_audio": None}
 
@@ -113,7 +116,7 @@ input_method = st.radio(
 
 # Image selection
 if input_method == "Upload Image":
-    st.session_state.uploaded_image= st.file_uploader(
+    st.session_state.uploaded_image = st.file_uploader(
         "Choose an image",
         type=["jpg", "jpeg", "png"],
         key=f"uploaded_image_{st.session_state.upload_counter}"
@@ -142,7 +145,7 @@ def load_whisper_model():
 whisper_model = load_whisper_model()
 payload = {}
 
-# Text input: Added for scalability of application. e.g, noisy environment or other users 
+# Text input: Added for scalability of application. e.g, noisy environment or other users
 st.toggle(
     "Default Voice chat or Text chat",
     key="text_mode",
@@ -163,7 +166,7 @@ else:
     if audio_input:
         user_prompt, language_code, language_probability = transcribe_STT(whisper_model, audio_input.getvalue())
         language_of_response = LANGUAGE_DICT.get(language_code, "English")
-    
+
 
 if user_prompt:
     # ___Infer resolution from keywords in Human Question___
@@ -171,12 +174,16 @@ if user_prompt:
         user_prompt_english = translator(user_prompt, language_code, 'en')
     else:
         user_prompt_english = user_prompt
-    
+
     image_resolution_type = infer_resolution_from_prompt(user_prompt_english)
     st.caption(f"Image resolution set to: {image_resolution_type}")
 
-    # ____Check image uploaded, speech detection___ 
-    if not st.session_state.uploaded_image:
+    # A session is "new" until the backend has handed us back a session_id.
+    # We only need an image on that very first turn.
+    first_turn = st.session_state.session_id is None
+
+    # ____Check image uploaded, speech detection___
+    if first_turn and not st.session_state.uploaded_image:
         st.markdown("""
             <div role="alert" aria-live="assertive">
                     Please upload an image first!
@@ -189,47 +196,47 @@ if user_prompt:
             </div>
             """, unsafe_allow_html=True)
     else:
-        # Send image if first time
-        if st.session_state.image_context is None:
-            # First question + image
+        if first_turn:
+            # First question + image: server will create a new session
             payload = {
+                "session_id": None,
                 "image_resolution_type": image_resolution_type,
                 "user_prompt": user_prompt,
                 "language_of_response": language_of_response,
-                "chat_history": [],
-                "send_image": True
+                "send_image": True,
                 }
             files = {"file": st.session_state.uploaded_image.getvalue()}
         else:
-            # Follow up question (No image is needed to send)
+            # Follow up question: NO image re-sent, just the session_id.
+            # The server already has the image + full history cached.
             payload = {
+                "session_id": st.session_state.session_id,
                 "image_resolution_type": image_resolution_type,
                 "user_prompt": user_prompt,
                 "language_of_response": language_of_response,
-                "chat_history" : st.session_state.chat_history,
-                "send_image": False
+                "send_image": False,
             }
-            files = {} # no image
+            files = {}  # no image
 
         # ______ Request to the FastAPI endpoint _______
-        
+
         st.markdown("""
             <div role="status" aria-live="polite" aria-label="Getting AI response, please wait">
             </div>
             """, unsafe_allow_html=True)
-        
+
         response = None
         with st.spinner("Getting AI response..."):
             try:
                 response = requests.post(url, data=payload, files=files)
-                
-                if response.status_code == 200: # if successful
+
+                if response.status_code == 200:  # if successful
                     result = response.json()
                     final_response = result["ai_response"]
-                    
-                    # store image context after successful response
-                    if st.session_state.image_context is None:
-                        st.session_state.image_context = result.get("image_context")
+
+                    # Store the session_id the backend gave us (only set once,
+                    # but overwrite with the same value each time).
+                    st.session_state.session_id = result["session_id"]
 
                     st.session_state.chat_history.append({
                         "role": "user",
@@ -246,7 +253,13 @@ if user_prompt:
                         st.session_state.last_audio = audio_bytes
                         autoplay_audio(st.session_state.last_audio)
                         st.session_state.last_audio = None
-            
+                else:
+                    st.markdown(f"""
+                        <div role="alert" aria-live="assertive">
+                        Something went wrong (status {response.status_code}). Please try again.
+                        </div>
+                        """, unsafe_allow_html=True)
+
             except requests.exceptions.Timeout:
                 if st.session_state.tts_enabled:
                     unexpected_response_bytes = text_to_speech_gtts("Please take photo again. Server is not reachable", lang_code=language_code
@@ -262,51 +275,3 @@ st.button(
 )
 
 render_chat_history()
-
-# _______Accessibility________
-# MutationObserver watches: every DOM change --> labels reapplied immediately 
-
-st.markdown("""
-    <script>
-        function applyAriaLabels() {
-
-            // Toggle button
-            const toggle = document.querySelector('input[type="checkbox"][role="switch"]');
-            if (toggle) {
-                toggle.setAttribute('aria-label', 'Toggle auto-play voice response. Turn off if using a screen reader like VoiceOver or NVDA');
-            }
-
-            // File uploader
-            const fileInput = document.querySelector('input[type="file"]');
-            if (fileInput) {
-                fileInput.setAttribute('aria-label', 'Upload an image in jpg, jpeg or png format');
-            }
-
-            // Audio record button
-            const audioBtn = document.querySelector('button[data-testid="stAudioInputRecordButton"]');
-            if (audioBtn) {
-                audioBtn.setAttribute('aria-label', 'Press to start recording your question');
-            }
-
-            // Reset button
-            const resetBtn = document.querySelector('div.stButton > button');
-            if (resetBtn) {
-                resetBtn.setAttribute('aria-label', 'Take a new photo');
-            }
-        }
-
-        // Apply once immediately on load
-        window.addEventListener('load', applyAriaLabels);
-
-        // Then watch for ANY DOM change and reapply
-        // This handles every Streamlit rerender
-        const observer = new MutationObserver(function(mutations) {
-            applyAriaLabels();
-        });
-
-        observer.observe(document.body, {
-            childList: true,      // watch for added/removed elements
-            subtree: true,        // watch all children deeply
-        });
-    </script>
-""", unsafe_allow_html=True)
