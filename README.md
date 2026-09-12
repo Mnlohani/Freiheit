@@ -11,8 +11,8 @@
 
 **Freiheit** (German: _Freedom_) is an AI-powered vision assistant
 designed to help blind and low-vision individuals to assist with their daily tasks,
-fostering independence through multimodal large language models. This product is developed after a deep use case research from various sources including consulting with blind people, videos and research papers. A dataset of 2,000+ real-world images was created specifically
-to validate these use cases across diverse environments.
+fostering independence through multimodal large language models. This product is developed after a deep use case research from various sources including consulting with blind people, videos and research papers. A dataset of 700 real-world images was created specifically to validate these use cases across diverse environments.
+**Website**: https://mnlohani.github.io/Freiheit-website/
 
  <table><tr><td><img src="assets/images/Demo_image_1.png"></td><td><img src="assets/images/Demo_image_2.png"></td></tr></table>
 
