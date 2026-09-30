@@ -54,24 +54,14 @@ LANGUAGE_OPTIONS = {
     "Dutch": "nl",
 }
 
-LANGUAGE_OPTIONS = {
-    "English": "en",
-    "German": "de",
-    "Hindi": "hi",
-    "French": "fr",
-    "Spanish": "es",
-    "Italian": "it",
-    "Dutch": "nl",
-}
-
 
 # The image resolutions for user to set so to lower the cost if paid models subscriptions are used.
-IMAGE_QUALITY_OPTIONS = ["Very Low", "Low", "Medium", "High"]
+IMAGE_QUALITY_OPTIONS = ["Low", "Medium", "High"]
 
 IMAGE_RESOLUTION = {
-    "High": (256, 256),
-    "Medium": (256, 256),
-    "Low": (256, 256),
+    "High": (768, 768),
+    "Medium": (512, 512),
+    "Low": (384, 384),
 }
 
 # To set background Image of the app
@@ -85,8 +75,8 @@ HAUPT_PROMPT = """You are helping a person which has lower vision or blindness. 
 PROMPTS = """Based on the content of the image, the user wants to ask questions. The tasks are divided into the options below. Choose the correct option for the correct prompt.
 If the image contains a cloth and the user asks about the cloth color, select Option 1.
 If the image contains a cloth and the user asks about the cloth pattern, select Option 2.
-If the image contains a bus and the user asks about the bus number, select Option 3.
-If the image contains a label tag of clothing or shoes and the user asks about the bus number, select Option 4.
+If the image contains a label tag of clothing or shoes, select Option 3.
+If the image contains a bus and the user asks about the bus number, select Option 4.
 If the image shows a digital display that might contain bus, metro, or flight information and the user asks about the departure time, select Option 5.
 If the image is near or inside a metro station and the user asks for directions to the street, select Option 6.
 If the image contains a product and the user wants information about the product, select Option 7.
@@ -101,57 +91,102 @@ option 5 : Departure time : The image contains a digital display that might show
 option 6 : Street for exit : The user is near or in a metro station. The names of streets and stations are in German. Be very precise about the presence of railway tracks or potential tracks, even if they are not visible in the photo. The user wants to know the direction for the street asked in question. Identify the correct direction towards the street for exit. If asked, provide the distance in footsteps.
 option 7 : Read products : Identify the information accurately that the user has requested about the name, nutrition, and expiry date of the product from the image, and concisely convey the relevant information. The labels are primarily in German but may also be in other languages. Accurately recognize the product the user is touching or holding in the image.
 option 8 : Identify the object which is directly in front of you. Measure its distance into steps of the user. Include the distance in feetsteps in your answer, if asked.
+
+Never mention option names or option numbers in your answer.
 """
 
 RESOLUTION_KEYWORD_MAP = {
     "Low": [
         # Cloth related — Option 1, 2
-        "color", "colour", "pattern", "fabric", "material",
-        "shirt", "dress", "jacket", "cloth", "clothes", "clothing",
-        "trousers", "pants", "skirt", "coat", "sweater", "laundry", "socks"
-        
-        # Label/tag related — Option 3
-        "label", "tag", "size", "price", "expiry", "nutrition",
-        "ingredient", "barcode",
-        
+        "color",
+        "colour",
+        "pattern",
+        "fabric",
+        "material",
+        "shirt",
+        "dress",
+        "jacket",
+        "cloth",
+        "clothes",
+        "clothing",
+        "trousers",
+        "pants",
+        "skirt",
+        "coat",
+        "sweater",
+        "laundry",
+        "socks",
         # Product related — Option 7
-        "product", "bottle", "can", "package", "brand",
-        
+        "product",
+        "bottle",
+        "package",
+        "brand",
         # Close object — Option 8
-        "front", "holding", "touching", "this object", "what is this", "in my hand"  
+        "holding",
+        "touching",
+        "this object",
+        "what is this",
+        "in my hand",
+        "on my hand",
     ],
-    
+    "Medium": [  # Label/tag/size/nutrition/Price related — Option 3
+        "label",
+        "tag",
+        "size",
+        "price",
+        "expiry",
+        "nutrition",
+        "ingredient",
+        "barcode",
+    ],
     "High": [
         # Bus related — Option 4
-        "bus", "number", "destination", "route",
-        
+        "front",
+        "bus",
+        "number",
+        "destination",
+        "route",
         # Display related — Option 5
-        "departure", "arrival", "schedule", "display", "screen",
-        "timetable", "metro", "flight", "platform",
-        
+        "departure",
+        "arrival",
+        "schedule",
+        "display",
+        "screen",
+        "timetable",
+        "metro",
+        "flight",
+        "platform",
         # Navigation related — Option 6
-        "exit", "street", "direction", "station", "track",
-        "where", "navigate", "way to", "how to get",
+        "exit",
+        "street",
+        "direction",
+        "station",
+        "track",
+        "where",
+        "navigate",
+        "way to",
+        "how to get",
     ],
 }
 
-DEFAULT_RESOLUTION = "Medium"   # fallback if no keywords match
+DEFAULT_RESOLUTION = "Medium"  # fallback if no keywords match
 
 # DistanceNN model Parameters
-EMBEDDING_DIM = 768  #  embedding dimension of DinoV2 model
-SAVED_MODEL_PATH = "./data/03_models/distanceNN/best_model_MSE.pt"
+# EMBEDDING_DIM = 768  #  embedding dimension of DinoV2 model
+# SAVED_MODEL_PATH = "./data/03_models/distanceNN/best_model_MSE.pt"
 
 # DINOv2 model directories
-IMAGE_PROCESSOR_PATH = "data/03_models/DINOv2_HuggingFace/image_processor"
-DINO_MODEL_PATH = "data/03_models/DINOv2_HuggingFace/dinov2_model"
+# IMAGE_PROCESSOR_PATH = "data/03_models/DINOv2_HuggingFace/image_processor"
+# DINO_MODEL_PATH = "data/03_models/DINOv2_HuggingFace/dinov2_model"
 
 # LLM Parameters
+LLM_MODEL_NAME = "gpt-5-mini"
 LLM_TEMPERATURE = 0.1
 LLM_MAX_TOKENS = 1028
 
 # Path to datasets for Training of DistanceNN
-DATASET_IMG_FILES_PATH = "data/01_raw/demo/object_front"
-DATASET_CSV_FILE_PATH = "data/01_raw/demo/chairs_distances.csv"
+# DATASET_IMG_FILES_PATH = "data/01_raw/demo/object_front"
+#  DATASET_CSV_FILE_PATH = "data/01_raw/demo/chairs_distances.csv"
 
 LANGUAGE_DICT = {
     "af": "Afrikaans",
@@ -287,17 +322,15 @@ LANGUAGE_LABELS = {
         "aria": "Ihre Sprache ist Deutsch. Tippen Sie zum Bestätigen",
         "display": "🌐 Ihre Sprache ist Deutsch\n\nTippen Sie zum Bestätigen",
     },
-
     "es": {
-    "name": "Spanish",
-    "aria": "Tu idioma es español. Toca para confirmar.",
-    "display": "🌐 Tu idioma es español\n\nToca en cualquier lugar para confirmar",
+        "name": "Spanish",
+        "aria": "Tu idioma es español. Toca para confirmar.",
+        "display": "🌐 Tu idioma es español\n\nToca en cualquier lugar para confirmar",
     },
-
-"it": {
-    "name": "Italian",
-    "aria": "La tua lingua è l'italiano. Tocca per confermare.",
-    "display": "🌐 La tua lingua è italiano\n\nTocca ovunque per confermare",
+    "it": {
+        "name": "Italian",
+        "aria": "La tua lingua è l'italiano. Tocca per confermare.",
+        "display": "🌐 La tua lingua è italiano\n\nTocca ovunque per confermare",
     },
     # fallback
     "default": {
