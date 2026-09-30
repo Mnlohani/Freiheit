@@ -1,4 +1,4 @@
-#____________ Load Libraries ________________
+# ____________ Load Libraries ________________
 import os
 import requests
 import warnings
@@ -15,26 +15,26 @@ from src.utils.gui_utils import (
     render_chat_history,
     set_background_image,
     reset_inputs,
-    set_title
-    )
+    set_title,
+)
 from src.utils.voice_utils import (
     autoplay_audio,
     detect_language_from_text,
     infer_resolution_from_prompt,
     text_to_speech_gtts,
     transcribe_STT,
-    translator
+    translator,
 )
 
-#____________ Load ENV variables & Ignore Warning ________________
+# ____________ Load ENV variables & Ignore Warning ________________
 warnings.filterwarnings("ignore")
 load_dotenv()
 url = os.getenv("BACKEND_URL") + API_ENDPOINT
 
 # ____________CSS: Larger camera & auto back camera ON in Streamlit ________________
-components.html("""
+components.html(
+    """
     <script>
-        // Override getUserMedia on the PARENT page before Streamlit camera loads
         const original = window.parent.navigator.mediaDevices.getUserMedia.bind(
             window.parent.navigator.mediaDevices
         );
@@ -49,9 +49,12 @@ components.html("""
             });
         };
     </script>
-""", height=0)
+""",
+    height=0,
+)
 
-st.markdown("""
+st.markdown(
+    """
     <style>
         [data-testid="stCameraInput"] video,
         [data-testid="stCameraInput"] canvas {
@@ -70,7 +73,9 @@ st.markdown("""
             }
         }
     </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # ____________Background Image set ________________
 set_background_image((800, 600))
@@ -87,13 +92,14 @@ user_prompt_english = None
 # The backend now owns the actual conversation state (image + history),
 # keyed by this session_id. The frontend just carries the key around.
 dict_init_session_var = {
-                         "uploaded_image": None,
-                         "upload_counter": 0,
-                         "chat_history": [],
-                         "session_id": None,
-                         "text_mode": False,
-                         "tts_enabled": False,
-                         "last_audio": None}
+    "uploaded_image": None,
+    "upload_counter": 0,
+    "chat_history": [],
+    "session_id": None,
+    "text_mode": False,
+    "tts_enabled": False,
+    "last_audio": None,
+}
 
 for key, value in dict_init_session_var.items():
     if key not in st.session_state:
@@ -106,12 +112,12 @@ st.toggle(
     value=False,
 )
 
-#Radio button selection
+# Radio button selection
 input_method = st.radio(
     "Choose how to provide image",
     ["Upload Image", "Take Photo"],
     horizontal=True,
-    key="input_method"
+    key="input_method",
 )
 
 # Image selection
@@ -119,28 +125,31 @@ if input_method == "Upload Image":
     st.session_state.uploaded_image = st.file_uploader(
         "Choose an image",
         type=["jpg", "jpeg", "png"],
-        key=f"uploaded_image_{st.session_state.upload_counter}"
+        key=f"uploaded_image_{st.session_state.upload_counter}",
     )
 else:
     st.session_state.uploaded_image = st.camera_input(
-        "Take a new photo",
-        key=f"uploaded_image_{st.session_state.upload_counter}"
+        "Take a new photo", key=f"uploaded_image_{st.session_state.upload_counter}"
     )
 
 # Preview image
 if st.session_state.uploaded_image is not None:
     st.image(
-            Image.open(st.session_state.uploaded_image),
-            caption="Uploaded image",
-            use_container_width=True
-)
+        Image.open(st.session_state.uploaded_image),
+        caption="Uploaded image",
+        use_container_width=True,
+    )
+
 
 # ________  Speech Detection: Speech to Text: FASTER-WHISPER MODEL _______
 @st.cache_resource
 def load_whisper_model():
     device = "cuda" if ctranslate2.get_cuda_device_count() > 0 else "cpu"
     compute_type = "float16" if device == "cuda" else "int8"
-    return WhisperModel(model_size_or_path="small", device=device, compute_type=compute_type)
+    return WhisperModel(
+        model_size_or_path="small", device=device, compute_type=compute_type
+    )
+
 
 whisper_model = load_whisper_model()
 payload = {}
@@ -149,29 +158,35 @@ payload = {}
 st.toggle(
     "Default Voice chat or Text chat",
     key="text_mode",
-    value=False,    # voice is default
+    value=False,  # voice is default
 )
 
 if st.session_state.text_mode:
     # Text Input box: Question or user prompt
     text_input = st.text_input(
-    "Write your question?", key=f"user_prompt_{st.session_state.upload_counter}")
+        "Write your question?", key=f"user_prompt_{st.session_state.upload_counter}"
+    )
     language_code = detect_language_from_text(text_input)
     language_of_response = LANGUAGE_DICT.get(language_code, "English")
     user_prompt = text_input
 else:
+
     # Record voice input
-    audio_input = st.audio_input("Record your question", key=f"audio_input_{st.session_state.upload_counter}")
-    # Speech to Text___
-    if audio_input:
-        user_prompt, language_code, language_probability = transcribe_STT(whisper_model, audio_input.getvalue())
-        language_of_response = LANGUAGE_DICT.get(language_code, "English")
+    audio_input = st.audio_input(
+        "Record your question", key=f"audio_input_{st.session_state.upload_counter}"
+    )
+# Speech to Text___
+if audio_input:
+    user_prompt, language_code, language_probability = transcribe_STT(
+        whisper_model, audio_input.getvalue()
+    )
+    language_of_response = LANGUAGE_DICT.get(language_code, "English")
 
 
 if user_prompt:
     # ___Infer resolution from keywords in Human Question___
-    if language_code != 'en':
-        user_prompt_english = translator(user_prompt, language_code, 'en')
+    if language_code != "en":
+        user_prompt_english = translator(user_prompt, language_code, "en")
     else:
         user_prompt_english = user_prompt
 
@@ -184,17 +199,23 @@ if user_prompt:
 
     # ____Check image uploaded, speech detection___
     if first_turn and not st.session_state.uploaded_image:
-        st.markdown("""
+        st.markdown(
+            """
             <div role="alert" aria-live="assertive">
                     Please upload an image first!
             </div>
-            """, unsafe_allow_html=True)
+            """,
+            unsafe_allow_html=True,
+        )
     elif not user_prompt:
-        st.markdown("""
+        st.markdown(
+            """
             <div role="alert" aria-live="assertive">
              Could not detect your question, please try again!
             </div>
-            """, unsafe_allow_html=True)
+            """,
+            unsafe_allow_html=True,
+        )
     else:
         if first_turn:
             # First question + image: server will create a new session
@@ -204,7 +225,7 @@ if user_prompt:
                 "user_prompt": user_prompt,
                 "language_of_response": language_of_response,
                 "send_image": True,
-                }
+            }
             files = {"file": st.session_state.uploaded_image.getvalue()}
         else:
             # Follow up question: NO image re-sent, just the session_id.
@@ -220,10 +241,13 @@ if user_prompt:
 
         # ______ Request to the FastAPI endpoint _______
 
-        st.markdown("""
+        st.markdown(
+            """
             <div role="status" aria-live="polite" aria-label="Getting AI response, please wait">
             </div>
-            """, unsafe_allow_html=True)
+            """,
+            unsafe_allow_html=True,
+        )
 
         response = None
         with st.spinner("Getting AI response..."):
@@ -238,40 +262,41 @@ if user_prompt:
                     # but overwrite with the same value each time).
                     st.session_state.session_id = result["session_id"]
 
-                    st.session_state.chat_history.append({
-                        "role": "user",
-                        "content": user_prompt
-                    })
+                    st.session_state.chat_history.append(
+                        {"role": "user", "content": user_prompt}
+                    )
 
-                    st.session_state.chat_history.append({
-                    "role": "assistant",
-                    "content": final_response
-                    })
+                    st.session_state.chat_history.append(
+                        {"role": "assistant", "content": final_response}
+                    )
 
                     if st.session_state.tts_enabled:
-                        audio_bytes = text_to_speech_gtts(final_response, lang_code=language_code)
+                        audio_bytes = text_to_speech_gtts(
+                            final_response, lang_code=language_code
+                        )
                         st.session_state.last_audio = audio_bytes
                         autoplay_audio(st.session_state.last_audio)
                         st.session_state.last_audio = None
                 else:
-                    st.markdown(f"""
+                    st.markdown(
+                        f"""
                         <div role="alert" aria-live="assertive">
                         Something went wrong (status {response.status_code}). Please try again.
                         </div>
-                        """, unsafe_allow_html=True)
+                        """,
+                        unsafe_allow_html=True,
+                    )
 
             except requests.exceptions.Timeout:
                 if st.session_state.tts_enabled:
-                    unexpected_response_bytes = text_to_speech_gtts("Please take photo again. Server is not reachable", lang_code=language_code
+                    unexpected_response_bytes = text_to_speech_gtts(
+                        "Please take photo again. Server is not reachable",
+                        lang_code=language_code,
                     )
                     autoplay_audio(unexpected_response_bytes)
                     st.session_state.last_audio = None
 
 # __________Reset Button____________
-st.button(
-    "Start over",
-    on_click=reset_inputs,
-    use_container_width=True
-)
+st.button("Start over", on_click=reset_inputs, use_container_width=True)
 
 render_chat_history()

@@ -23,24 +23,26 @@ def load_llm_model(model: str) -> object:
         object: An instance of the loaded language model
     """
     load_dotenv()
-    if model == "gpt-4o":
+    if "gpt" in model:
         llm = ChatOpenAI(
-            model="gpt-4o",
+            model=model,
             max_tokens=LLM_MAX_TOKENS,
+            reasoning_effort="minimal",
             temperature=LLM_TEMPERATURE,
+            verbosity="low",
             streaming=True,
             api_key=os.environ.get("OPENAI_API_KEY"),
         )
-    elif model == "gemini-2.5-flash":
+    elif "gemini" in model:
         llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash",
+            model=model,
             temperature=LLM_TEMPERATURE,
             max_output_tokens=LLM_MAX_TOKENS,
             streaming=True,
             api_key=os.environ.get("Gemini_API_KEY"),
         )
     elif model == "llava":
-        llm = ChatOllama(model="llava")
+        llm = ChatOllama(model=model)
     else:
         raise Exception("currently supported Models: Gemini, chatgpt and llava")
     return llm
@@ -56,11 +58,12 @@ def construct_message(
     Builds the full message list sent to the LLM for one turn.
 
     Structure:
-      1. SystemMessage      -- instructions (always first)
-      2. Image + first prompt, chat_history is empty(turn 1). The image sent only in first turn
-      3. If chat_history is non-empty: reconstructing the whole conversation as
-         Human/AI messages (text only), so the model have
-         the conversation instead of only seeing the newest prompt
+      1. SystemMessage -- instructions (always first) makes "messages" variable
+      2. The whole conversation, rebuilt on every call because the LLM API
+         is stateless: chat_history (Human/AI messages) + the new question.
+      3. The stored image is attached to the FIRST user message on every call,
+         so the model can always see it. The frontend still uploads it only once;
+         the backend keeps it in the session.
 
     Args:
         b64image (str): base64-encoded JPEG image (same image every turn).
@@ -71,6 +74,13 @@ def construct_message(
 
     Returns:
         list: LangChain message objects ready for model.invoke(...)
+
+    Example:
+        Human: "What color is the shirt?"  + [IMAGE]   <- only the first message
+        AI:    "Blue."
+        Human: "What does the tag say?"
+        AI:    "Size M."
+        Human: "How much is it?"
     """
     chat_history = chat_history or []
 
@@ -84,35 +94,31 @@ def construct_message(
 
     messages = [SystemMessage(content=prompt)]
 
-    is_first_turn = len(chat_history) == 0
+    # Full conversation = previous turns + the new question
+    turns = chat_history + [{"role": "user", "content": human_message}]
 
-    if is_first_turn:
-        # Turn 1: image + prompt travel together in one HumanMessage
-        messages.append(
-            HumanMessage(
-                content=[
-                    {"type": "text", "text": human_message},
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{b64image}",
-                            "detail": "auto",
+    for i, turn in enumerate(turns):
+        if turn["role"] == "assistant":
+            messages.append(AIMessage(content=turn["content"]))
+        elif i == 0:
+            # Very first message of the conversation: text + image together
+            messages.append(
+                HumanMessage(
+                    content=[
+                        {"type": "text", "text": turn["content"]},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{b64image}",
+                                "detail": "auto",
+                            },
                         },
-                    },
-                ]
+                    ]
+                )
             )
-        )
-    else:
-        # Turn 2+: text only 
-        # the model already saw the image on turn 1,
-        # reconstructing the whole conversation
-        for turn in chat_history:
-            if turn["role"] == "user":
-                messages.append(HumanMessage(content=turn["content"]))
-            else:
-                messages.append(AIMessage(content=turn["content"]))
-        # add new question
-        messages.append(HumanMessage(content=human_message))
+        else:
+            # All later user messages: text only
+            messages.append(HumanMessage(content=turn["content"]))
 
     return messages
 

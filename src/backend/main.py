@@ -7,18 +7,17 @@ from typing import Optional
 from PIL import Image, ExifTags
 from fastapi import FastAPI, Form, UploadFile, File, HTTPException
 
-from src.constants import IMAGE_RESOLUTION
+from src.constants import IMAGE_RESOLUTION, LLM_MODEL_NAME
 from src.models.llm.llm import get_response, load_llm_model
-
 
 app = FastAPI()
 
 # _____Load model______
-llm = load_llm_model(model="gemini-2.5-flash")
+llm = load_llm_model(model=LLM_MODEL_NAME)
 
 # ___________In-memory session store______
 # Keyed by session_id. Holds
-# 1. base64-encoded image (sent by the client ONCE, on the first turn) 
+# 1. base64-encoded image (sent by the client ONCE, on the first turn)
 # 2. running chat_history for that session.
 
 SESSIONS: dict[str, dict] = {}
@@ -59,7 +58,7 @@ def _process_image(image_bytes: bytes, resolution_type: str) -> str:
 
 
 @app.post("/get_ai_response")
-async def get_ai_response(
+def get_ai_response(
     session_id: Optional[str] = Form(None),
     image_resolution_type: str = Form(...),
     user_prompt: str = Form(...),
@@ -81,8 +80,9 @@ async def get_ai_response(
                 status_code=400,
                 detail="First message of a session must include an image.",
             )
-        image_bytes = await file.read()
+        image_bytes = file.file.read()
         session["base64_image"] = _process_image(image_bytes, image_resolution_type)
+
     elif session["base64_image"] is None:
         # Follow-up request but we have nothing stored (e.g. server restarted,
         # or client sent a stale/unknown session_id)
@@ -91,7 +91,7 @@ async def get_ai_response(
             detail="No image on file for this session. Please start over with an image.",
         )
 
-    # Call the LLM with full context: image (once) + running history 
+    # Call the LLM with full context: image (once) + running history
     ai_response = get_response(
         llm,
         b64image=session["base64_image"],
@@ -108,7 +108,7 @@ async def get_ai_response(
 
 
 @app.post("/reset_session")
-async def reset_session(session_id: str = Form(...)):
+def reset_session(session_id: str = Form(...)):
     """Drop a session's stored image + history (called by 'Start over')."""
     SESSIONS.pop(session_id, None)
     return {"status": "reset"}
