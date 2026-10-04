@@ -1,14 +1,16 @@
 import base64
+import uuid
 from deep_translator import GoogleTranslator
 from gtts import gTTS
 from io import BytesIO
 import streamlit as st
+import streamlit.components.v1 as components
 from faster_whisper import WhisperModel
 
 from src.constants import DEFAULT_RESOLUTION, RESOLUTION_KEYWORD_MAP
 
 
-def transcribe_STT_(whisper_model: WhisperModel, audio_bytes: bytes) -> tuple:
+def transcribe_STT(whisper_model: WhisperModel, audio_bytes: bytes) -> tuple:
     """
     Save input audio bytes in memory to transcribe with Whisper
 
@@ -17,7 +19,7 @@ def transcribe_STT_(whisper_model: WhisperModel, audio_bytes: bytes) -> tuple:
     whisper_model : WhisperModel
         Loaded faster-whisper model instance.
     audio_bytes : bytes
-        Raw audio bytes from st.audio_input().
+        Raw audio bytes from st.audio_input()
 
     Returns
     -------
@@ -113,12 +115,26 @@ def autoplay_audio(audio_bytes: bytes, format: str = "audio/mp3"):
 
     # encode raw bytes to base64 string so HTML can embed it inline
     audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
-    audio_html = f"""
-                        <audio autoplay>
-                        <source src="data:{format};base64,{audio_base64}" type="{format}">
-                        </audio>
-                        """
-    st.markdown(audio_html, unsafe_allow_html=True)
+
+    uid = uuid.uuid4().hex  # unique HTML => new iframe => fresh element every time
+    components.html(
+        f"""
+        <audio id="a{uid}" autoplay>
+            <source src="data:{format};base64,{audio_base64}" type="{format}">
+        </audio>
+        <script>
+            const el = document.getElementById("a{uid}");
+            el.play().catch(e => console.log("Autoplay blocked:", e));
+        </script>
+        """,
+        height=0,
+    )
+    # audio_html = f"""
+    #                    <audio autoplay>
+    #                    <source src="data:{format};base64,{audio_base64}" type="{format}">
+    #                    </audio>
+    #                   """
+    # st.markdown(audio_html, unsafe_allow_html=True)
 
 
 def infer_resolution_from_prompt(user_prompt: str):

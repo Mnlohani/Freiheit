@@ -1,7 +1,9 @@
 # ____________ Load Libraries ________________
 import os
+import base64
 import requests
 import warnings
+import numpy as np
 
 from PIL import Image
 import streamlit as st
@@ -113,32 +115,33 @@ st.toggle(
 )
 
 # Radio button selection
-input_method = st.radio(
-    "Choose how to provide image",
-    ["Upload Image", "Take Photo"],
-    horizontal=True,
-    key="input_method",
-)
+# input_method = st.radio(
+#    "Choose how to provide image",
+#    ["Upload Image", "Take Photo"],
+#    horizontal=True,
+#    key="input_method",
+# )
 
 # Image selection
-if input_method == "Upload Image":
-    st.session_state.uploaded_image = st.file_uploader(
-        "Choose an image",
-        type=["jpg", "jpeg", "png"],
-        key=f"uploaded_image_{st.session_state.upload_counter}",
-    )
-else:
-    st.session_state.uploaded_image = st.camera_input(
-        "Take a new photo", key=f"uploaded_image_{st.session_state.upload_counter}"
-    )
+# if input_method == "Upload Image":
+#    st.session_state.uploaded_image = st.file_uploader(
+#        "Choose an image",
+#        type=["jpg", "jpeg", "png"],
+#        key=f"uploaded_image_{st.session_state.upload_counter}",
+#    )
+# else:
+st.session_state.uploaded_image = st.camera_input(
+    "Take a phtoto", key=f"uploaded_image_{st.session_state.upload_counter}"
+)
+
 
 # Preview image
-if st.session_state.uploaded_image is not None:
-    st.image(
-        Image.open(st.session_state.uploaded_image),
-        caption="Uploaded image",
-        use_container_width=True,
-    )
+# if st.session_state.uploaded_image is not None:
+#    st.image(
+#        Image.open(st.session_state.uploaded_image),
+#        caption="Uploaded image",
+#        use_container_width=True,
+#    )
 
 
 # ________  Speech Detection: Speech to Text: FASTER-WHISPER MODEL _______
@@ -147,7 +150,11 @@ def load_whisper_model():
     device = "cuda" if ctranslate2.get_cuda_device_count() > 0 else "cpu"
     compute_type = "float16" if device == "cuda" else "int8"
     return WhisperModel(
-        model_size_or_path="small", device=device, compute_type=compute_type
+        model_size_or_path="small",
+        device=device,
+        compute_type=compute_type,
+        cpu_threads=max(1, (os.cpu_count() or 8) // 2),
+        num_workers=1,
     )
 
 
@@ -173,13 +180,16 @@ else:
 
     # Record voice input
     audio_input = st.audio_input(
-        "Record your question", key=f"audio_input_{st.session_state.upload_counter}"
+        "Record your question",
+        key=f"audio_input_{st.session_state.upload_counter}",
     )
+
 # Speech to Text___
 if audio_input:
     user_prompt, language_code, language_probability = transcribe_STT(
         whisper_model, audio_input.getvalue()
     )
+
     language_of_response = LANGUAGE_DICT.get(language_code, "English")
 
 
