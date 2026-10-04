@@ -10,6 +10,7 @@ from src.constants import (
     WIDGET_KEYS,
 )
 
+
 def set_background(file_path: str) -> None:
     """set a background image
 
@@ -97,18 +98,17 @@ def set_title() -> None:
     st.markdown("<br>", unsafe_allow_html=True)
 
 
-
 def reset_inputs() -> None:
     """
     Reset all Streamlit widgets and session state back to their defaults.
- 
+
     Streamlit widgets are controlled by their session state key.
     Deleting the key forces Streamlit to re-render the widget as fresh/empty.
- 
+
     Also tells the backend to drop this session's stored image + chat
     history (best-effort -- if the backend call fails, we still reset the
     frontend so the UI never gets stuck).
- 
+
     Returns
     -------
     None
@@ -124,19 +124,17 @@ def reset_inputs() -> None:
             )
         except requests.exceptions.RequestException:
             pass  # non-fatal: worst case the server holds an orphaned session
- 
+
     for key in WIDGET_KEYS:
         if key in st.session_state:
             del st.session_state[key]  # deleting keys to reset the widget
- 
+
     st.session_state.upload_counter = st.session_state.get("upload_counter", 0) + 1
     st.session_state.chat_history = []
     st.session_state.session_id = None  # was image_context; new persistence key
     st.session_state.text_mode = False
-    st.session_state.tts_enabled = False
- 
 
-    
+
 def render_chat_history() -> None:
     """
     Render scrollable chat history box showing all
@@ -151,9 +149,14 @@ def render_chat_history() -> None:
 
     st.markdown("### Conversation")
 
-    for message in st.session_state.chat_history:
-        if message["role"] == "user":
-            st.markdown(f"""
+    user_msgs = st.session_state.chat_history[::2]
+    ai_responses = st.session_state.chat_history[1::2]
+
+    display_pairs = zip(user_msgs[::-1], ai_responses[::-1])  # newest_first
+
+    for user_msg, ai_msg in display_pairs:
+        st.markdown(
+            f"""
                 <div style="
                     background: #e8f4f8;
                     border-radius: 12px;
@@ -161,12 +164,13 @@ def render_chat_history() -> None:
                     margin: 6px 0;
                     text-align: right;
                 ">
-                    User: {message["content"]}
+                    User: {user_msg["content"]}
                 </div>
-            """, unsafe_allow_html=True)
-
-        else:
-            st.markdown(f"""
+            """,
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            f"""
                 <div 
                     style="
                         background: #f0f0f0;
@@ -178,6 +182,8 @@ def render_chat_history() -> None:
                     aria-live="polite"
                     tabindex="0"
                 >
-                    AI: {message["content"]}
+                    AI: {ai_msg["content"]}
                 </div>
-            """, unsafe_allow_html=True)
+            """,
+            unsafe_allow_html=True,
+        )
