@@ -102,7 +102,7 @@ export default function App() {
       {step === "capture" && (
         <>
           <h1 ref={heading} tabIndex={-1}>
-            Freiheit. Your visual assistant.
+            Freiheit. Your visual assistant
           </h1>
           <button className="big" onClick={() => fileInput.current?.click()}>
             Take a photo
@@ -138,7 +138,7 @@ export default function App() {
           </p>
           {RecordButton}
           <button className="big secondary" onClick={() => say(answer, lang)}>
-            🔁 Repeat answer
+            Repeat answer
           </button>
           <button className="big secondary" onClick={startOver}>
             Take a new photo
