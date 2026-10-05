@@ -1,122 +1,165 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect, useRef, useState } from "react";
+import { askAI, resetSession, transcribe } from "./api";
+import { useRecorder } from "./useRecorder";
+import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+type Step = "capture" | "ask" | "processing" | "answer";
+
+export default function App() {
+  const [step, setStep] = useState<Step>("capture");
+  const [image, setImage] = useState<File | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [answer, setAnswer] = useState("");
+  const [error, setError] = useState("");
+  const [speak, setSpeak] = useState(false);
+  const [lang, setLang] = useState("en");
+
+  const fileInput = useRef<HTMLInputElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const { recording, start, stop } = useRecorder();
+
+  // Move focus to the heading whenever the step changes
+  useEffect(() => {
+    heading.current?.focus();
+  }, [step]);
+
+  function say(text: string, code: string) {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = code;
+    speechSynthesis.speak(u);
+  }
+
+  function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setImage(f);
+    setStep("ask");
+    e.target.value = ""; // allows taking the same file name again
+  }
+
+  async function toggleRecord() {
+    setError("");
+    if (!recording) {
+      try {
+        await start();
+      } catch {
+        setError("Microphone not available.");
+      }
+      return;
+    }
+    const blob = await stop();
+    setStep("processing");
+    try {
+      const t = await transcribe(blob);
+      if (!t.text) {
+        setError("I could not hear a question. Please try again.");
+        setStep(sessionId ? "answer" : "ask");
+        return;
+      }
+      setLang(t.language_code);
+      const res = await askAI({ sessionId, image, t });
+      setSessionId(res.session_id);
+      setAnswer(res.ai_response);
+      setStep("answer");
+      if (speak) say(res.ai_response, t.language_code);
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setStep(sessionId ? "answer" : "ask");
+    }
+  }
+
+  function startOver() {
+    if (sessionId) resetSession(sessionId);
+    speechSynthesis.cancel();
+    setSessionId(null);
+    setImage(null);
+    setAnswer("");
+    setError("");
+    setStep("capture");
+    setTimeout(() => fileInput.current?.click(), 0); // opens camera right away
+  }
+
+  const RecordButton = (
+    <button className="big" onClick={toggleRecord} aria-pressed={recording}>
+      {recording ? "Stop recording" : "Tap to record your question"}
+    </button>
+  );
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
+    <main>
+      <input
+        ref={fileInput}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={onPhoto}
+        hidden
+        aria-hidden="true"
+        tabIndex={-1}
+      />
+
+      {step === "capture" && (
+        <>
+          <h1 ref={heading} tabIndex={-1}>
+            Freiheit. Your visual assistant.
+          </h1>
+          <button className="big" onClick={() => fileInput.current?.click()}>
+            Take a photo
+          </button>
+        </>
+      )}
+
+      {step === "ask" && (
+        <>
+          <h1 ref={heading} tabIndex={-1}>
+            Photo taken. Ask your question.
+          </h1>
+          {RecordButton}
+          <button className="big secondary" onClick={startOver}>
+            Retake photo
+          </button>
+        </>
+      )}
+
+      {step === "processing" && (
+        <h1 ref={heading} tabIndex={-1} role="status">
+          Getting your answer, please wait.
+        </h1>
+      )}
+
+      {step === "answer" && (
+        <>
+          <h1 ref={heading} tabIndex={-1}>
+            Answer
+          </h1>
+          <p className="answer" aria-live="polite">
+            {answer}
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+          {RecordButton}
+          <button className="big secondary" onClick={() => say(answer, lang)}>
+            🔁 Repeat answer
+          </button>
+          <button className="big secondary" onClick={startOver}>
+            Take a new photo
+          </button>
+        </>
+      )}
 
-      <div className="ticks"></div>
+      {error && (
+        <p role="alert" className="error">
+          {error}
+        </p>
+      )}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <label className="toggle">
+        <input
+          type="checkbox"
+          checked={speak}
+          onChange={(e) => setSpeak(e.target.checked)}
+        />
+        Speak answers aloud automatically
+      </label>
+    </main>
+  );
 }
-
-export default App
