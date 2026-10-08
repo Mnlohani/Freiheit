@@ -2,8 +2,9 @@
 
 ### AI Assistant for Blind & Visually Impaired Users
 
-[![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)](https://python.org)
+[![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Backend-green?logo=fastapi)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-Frontend-61DAFB?logo=react&logoColor=white)](https://react.dev/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-Frontend-red?logo=streamlit)](https://streamlit.io)
 [![Docker](https://img.shields.io/badge/Docker-Containerised-blue?logo=docker)](https://docker.com)
 [![LangChain](https://img.shields.io/badge/LangChain-LLM_Framework-yellow)](https://langchain.com)
@@ -14,6 +15,11 @@ designed to help blind and low-vision individuals to assist with their daily tas
 fostering independence through multimodal large language models. This product is developed after a deep use case research from various sources including consulting with blind people, videos and research papers. A dataset of 700 real-world images was created specifically to validate these use cases across diverse environments.
 **Website**: https://mnlohani.github.io/Freiheit-website/
 
+#### Web App version with Screenrecorder:
+
+ <table><tr><td><img src="assets/images/Demo_react_image_1.png"></td><td><img src="assets/images/Demo_react_image_2.png"></td><td><img src="assets/images/Demo_react_image_3.png"></td><td><img src="assets/images/Demo_react_image_4.png"></td></tr></table>
+ 
+ #### Streamlit version showing functionalities:
  <table><tr><td><img src="assets/images/Demo_image_1.png"></td><td><img src="assets/images/Demo_image_2.png"></td></tr></table>
 
 ## Demo
@@ -21,12 +27,13 @@ fostering independence through multimodal large language models. This product is
 Demo videos are recorded on CPU. GPU-enabled systems will have faster
 Speach to Text (STT) transcription via automatic hardware detection. To meet a balance between accuracy and speed in CPUs the current state-of-art Faster-Whisper model is used with model size as small, INT8 quantization, beam-size (the number of alternative hypotheses during speech decoding) as 1 and VAD (Voice Activity Detection).
 
-| Version                               | Description                      | Link                                                    |
-| ------------------------------------- | -------------------------------- | ------------------------------------------------------- |
-| v2.0 — Mobile device with voice input | FastAPI + Docker + Streamlit     | [Watch ▶️](https://youtu.be/DKLlWzGoMVk)                |
-| v2.0 — Desktop with voice input       | FastAPI + Docker + Streamlit     | [Watch ▶️](https://youtu.be/OrY7ElUFmAI)                |
-| v2.0 — Desktop with Text input        | FastAPI + Docker + Streamlit     | [Watch ▶️](https://youtu.be/zexlZ2o_TgE)                |
-| v1.0 — Legacy                         | DistanceNN + Vision Transformers | [Watch ▶️](https://www.youtube.com/watch?v=JOuQfZIHabc) |
+| Version                                         | Description                      | Link                                                     |
+| ----------------------------------------------- | -------------------------------- | -------------------------------------------------------- |
+| v2.1 — Web APP with voice input & Screen Reader | FastAPI + Docker + React         | [Watch ▶️](hhttps://www.youtube.com/watch?v=3H4TI9r5A_s) |
+| v2.0 — Mobile device with voice input           | FastAPI + Docker + Streamlit     | [Watch ▶️](https://youtu.be/DKLlWzGoMVk)                 |
+| v2.0 — Desktop with voice input                 | FastAPI + Docker + Streamlit     | [Watch ▶️](https://youtu.be/OrY7ElUFmAI)                 |
+| v2.0 — Desktop with Text input                  | FastAPI + Docker + Streamlit     | [Watch ▶️](https://youtu.be/zexlZ2o_TgE)                 |
+| v1.0 — Legacy                                   | DistanceNN + Vision Transformers | [Watch ▶️](https://www.youtube.com/watch?v=JOuQfZIHabc)  |
 
 ---
 
@@ -45,7 +52,7 @@ Speach to Text (STT) transcription via automatic hardware detection. To meet a b
 
 ### Current Software Architecture (v2.0)
 
-FastAPI backend + Streamlit frontend, containerised with Docker.
+FastAPI backend + React/Streamlit frontend, containerised with Docker. The below front end diagram shows architecture based on Streamlit. React front end also follow the same architecture principles.
 
 ## ![Architecture Front end](assets/images/Front_end.png)
 
@@ -59,7 +66,7 @@ FastAPI backend + Streamlit frontend, containerised with Docker.
 
 | Layer            | Technology                        |
 | ---------------- | --------------------------------- |
-| Frontend         | Streamlit                         |
+| Frontend         | React/Streamlit                   |
 | Backend          | FastAPI                           |
 | LLM Framework    | LangChain                         |
 | Speech-to-Text   | Faster-Whisper (small model, CPU) |
@@ -179,16 +186,22 @@ directly informed the v2.0 architecture decisions._
 git clone https://github.com/Mnlohani/Freiheit
 
 # Create a .env file in project root
+# for example you use Gemini key then
 echo "Gemini_API_KEY=your_key_here" > .env
 ```
 
-### Run with Docker (Recommended)
+### Run React version without Docker
 
 ```bash
-docker compose up --build
+# Start FastAPI backend
+uv run uvicorn src.backend.main:app --host localhost --port 8000 --reload
+
+# Start Streamlit frontend (separate terminal)
+Go to frontend-react folder
+npm run dev
 ```
 
-### Run without Docker
+### Run Streamlit version without Docker
 
 ```bash
 # Start FastAPI backend
@@ -196,6 +209,12 @@ uv run uvicorn src.backend.main:app --host localhost --port 8000 --reload
 
 # Start Streamlit frontend (separate terminal)
 uv run python -m streamlit run ./src/frontend/app.py
+```
+
+### Run with Docker (This cuurently supports Streamlit version only)
+
+```bash
+docker compose up --build
 ```
 
 ### Using LLaMA3 locally instead of OpenAI
@@ -208,8 +227,8 @@ ollama pull llama3
 
 ## 🗺️ Roadmap
 
-- [ ] Migrate frontend from Streamlit to React
-- [ ] Improve screen reader compatibility
+- [Done/Under development] Migrate frontend from Streamlit to React
+- [Done/Under development] Improve screen reader compatibility
 - [ ] RAG-based table/nutritional data recognition
 - [ ] Multi-model benchmark comparison
 - [ ] Expand DistanceNN training dataset for v3.0
@@ -230,6 +249,7 @@ Freiheit/
 │   ├── models/           # LLM + legacy DistanceNN
 │   └── utils/            # Voice, image, LLM utilities
 │   └── visualisation
+├──fronend-react          # React UI
 ├── assets/               # Images and demo content
 ├── docker-compose.yml
 ├── pyproject.toml        # uv dependencies
