@@ -7,8 +7,10 @@ from typing import Optional
 from PIL import Image, ExifTags
 from fastapi import FastAPI, Form, UploadFile, File, HTTPException
 
-from src.constants import IMAGE_RESOLUTION, LLM_MODEL_NAME
+from src.constants import IMAGE_RESOLUTION, LANGUAGE_DICT, LLM_MODEL_NAME
 from src.models.llm.llm import get_response, load_llm_model
+from src.utils.text_utils import infer_resolution_from_prompt, translator
+from src.utils.stt import transcribe_STT
 
 app = FastAPI()
 
@@ -55,6 +57,23 @@ def _process_image(image_bytes: bytes, resolution_type: str) -> str:
     resized_buffer = io.BytesIO()
     img.save(resized_buffer, format="JPEG")
     return base64.b64encode(resized_buffer.getvalue()).decode("utf-8")
+
+
+@app.post("/transcribe")
+def transcribe(audio: UploadFile = File(...)):
+    """
+    Returns text, language name, and image resolution from keywords using Whisper call: Speech to text
+    """
+
+    text, language_code = transcribe_STT(audio.file.read())
+    language_of_response = LANGUAGE_DICT.get(language_code, "English")
+    prompt_en = text if language_code == "en" else translator(text, language_code, "en")
+    return {
+        "text": text,
+        "language_code": language_code,
+        "language_of_response": language_of_response,
+        "image_resolution_type": infer_resolution_from_prompt(prompt_en),
+    }
 
 
 @app.post("/get_ai_response")
