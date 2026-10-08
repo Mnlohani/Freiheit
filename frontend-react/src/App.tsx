@@ -18,7 +18,7 @@ export default function App() {
   const heading = useRef<HTMLHeadingElement>(null);
   const { recording, start, stop } = useRecorder();
 
-  // Move focus to the heading whenever the step changes
+  // Move focus to the heading whenever the step changes to tell user about the screen
   useEffect(() => {
     heading.current?.focus();
   }, [step]);
@@ -123,7 +123,7 @@ export default function App() {
       )}
 
       {step === "processing" && (
-        <h1 ref={heading} tabIndex={-1} role="status">
+        <h1 ref={heading} tabIndex={-1}>
           Getting your answer, please wait.
         </h1>
       )}
